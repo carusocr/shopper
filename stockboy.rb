@@ -12,6 +12,7 @@ agent.get('http://superfreshfood.inserts2online.com/customer_Frame.jsp?drpStoreI
 end
 agent.get('http://superfreshfood.inserts2online.com/customer_Frame.jsp?drpStoreID=747&showFlash=false').search('.//*[@id="itemName0"]')
 doc = Nokogiri::HTML(open('http://superfreshfood.inserts2online.com/customer_Frame.jsp?drpStoreID=747&showFlash=false'))
+puts doc.content
 
 doc.search('Store').each do |link|
 	puts link.content
