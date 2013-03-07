@@ -4,6 +4,7 @@
 
 require 'mechanize'
 require 'nokogiri'
+require 'open-uri'
 
 agent = Mechanize.new
 agent.get('http://superfreshfood.inserts2online.com/customer_Frame.jsp?drpStoreID=747&showFlash=false').search("Store").each do |page|
@@ -15,3 +16,4 @@ doc = Nokogiri::HTML(open('http://superfreshfood.inserts2online.com/customer_Fra
 doc.search('Store').each do |link|
 	puts link.content
 end
+puts doc.content
