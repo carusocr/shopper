@@ -1,0 +1,11 @@
+Initial goals:
+
+1. Navigate to site
+2. Select local weekly circular.
+3. Parse JS table generated upon category selection.
+
+stackoverflow links
+
+http://stackoverflow.com/questions/17401678/capybara-with-phantomjs-poltergeist-selecting-value-from-drop-down-doesnt-tr
+
+http://stackoverflow.com/questions/20206194/how-to-have-jquery-work-with-phantomjs-poltergeist-and-capybara?rq=1
