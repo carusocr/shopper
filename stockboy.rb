@@ -2,15 +2,11 @@
 
 # Working on a script that crawls supermarket pages and comparison shops for me.
 
-#require 'mechanize'
+require 'mechanize'
 require 'nokogiri'
 require 'capybara'
 require 'capybara/poltergeist'
 
-#register driver
-#Capybara.register_driver :poltergeist do |app|
-#	Capybara::Poltergeist::Driver.new(app, :js_errors => false)
-#end
 Capybara.default_driver = :poltergeist
 Capybara.register_driver :poltergeist do |app|
     options = {
@@ -33,4 +29,15 @@ end
 #       puts link.content
 #end
 
-
+# Dead ended with mechanize, which doesn't seem to play well with JavaScript
+##### MECHANIZE ###########
+#agent = Mechanize.new
+#page = agent.get('http://superfresh.apsupermarket.com/weekly-circular?storenum=747&brand=sf')
+#iframe_page = agent.click page.iframes.first
+#test = agent.click(iframe_page.link_with(:text => /Text Only/))
+#iframe_page.link_with(:text => /Text Only/) do |l|
+#  puts l.text
+#  Mechanize::Page::Link.new(l, agent, iframe_page).click
+#end
+#l = iframe_page.search ".//a
+#end 
