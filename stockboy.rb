@@ -21,7 +21,7 @@ module Shopper
       visit('http://superfresh.apsupermarket.com/weekly-circular?storenum=747&brand=sf')
       sleep 1
       page.driver.browser.switch_to.frame(0)
-      sleep 1
+      sleep 2
       page.first(:link,'Text Only').click
       sleep 3
     end
