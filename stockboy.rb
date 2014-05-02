@@ -2,10 +2,35 @@
 
 # Working on a script that crawls supermarket pages and comparison shops for me.
 
-require 'mechanize'
-require 'nokogiri'
+#require 'mechanize'
+#require 'nokogiri'
 require 'capybara'
 require 'capybara/poltergeist'
+
+require 'capybara/dsl'
+require 'capybara-webkit'
+Capybara.run_server = false
+#Capybara.current_driver = :webkit
+Capybara.current_driver = :selenium
+Capybara.app_host = "http://www.google.com"
+
+module Shopper
+  class SuperFresh
+    include Capybara::DSL
+    def get_results
+      visit('http://superfresh.apsupermarket.com/weekly-circular?storenum=747&brand=sf')
+      sleep 1
+      page.driver.browser.switch_to.frame(0)
+      sleep 1
+      page.first(:link,'Text Only').click
+      sleep 3
+    end
+  end
+end
+
+shop = Shopper::SuperFresh.new
+shop.get_results
+exit
 
 Capybara.default_driver = :poltergeist
 Capybara.register_driver :poltergeist do |app|
@@ -19,15 +44,8 @@ Capybara.register_driver :poltergeist do |app|
     Capybara::Poltergeist::Driver.new(app, options)
 end
 
-#agent.get('http://superfreshfood.inserts2online.com/customer_Frame.jsp?drpStoreID=747&showFlash=false').search("Store").each do |page|
-#       puts page.content
-#end
-#doc = Nokogiri::HTML(open('http://www.thefreshgrocer.com/Shop/WeeklyAdTextOnly.aspx'))
-#puts doc.content
+visit('http://superfresh.apsupermarket.com/weekly-circular?storenum=747&brand=sf')
 
-#doc.search('Store').each do |link|
-#       puts link.content
-#end
 
 # Dead ended with mechanize, which doesn't seem to play well with JavaScript
 ##### MECHANIZE ###########
