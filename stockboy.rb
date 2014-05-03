@@ -23,7 +23,10 @@ module Shopper
       page.driver.browser.switch_to.frame(0)
       sleep 2
       page.first(:link,'Text Only').click
-      sleep 3
+      sleep 1
+			#add each loop for categories in arg array
+      page.first(:link,'Meat').click
+			sleep 2
     end
   end
 end
