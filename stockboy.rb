@@ -14,27 +14,43 @@ Capybara.run_server = false
 Capybara.current_driver = :selenium
 Capybara.app_host = "http://www.google.com"
 
+pathmark = 'http://pathmark.apsupermarket.com/view-circular?storenum=532#ad'
+superfresh = 'http://superfresh.apsupermarket.com/weekly-circular?storenum=747&brand=sf'
+
 module Shopper
-  class SuperFresh
+  class APS #SuperFresh and Pathmark
     include Capybara::DSL
-    def get_results
-      visit('http://superfresh.apsupermarket.com/weekly-circular?storenum=747&brand=sf')
+    def get_results(store)
+      visit(store)
       sleep 1
       page.driver.browser.switch_to.frame(0)
-      sleep 2
+      sleep 1
       page.first(:link,'Text Only').click
       sleep 1
 			#add each loop for categories in arg array
       page.first(:link,'Meat').click
-			sleep 2
+			sleep 1
+      page.first(:link,'View All').click
+			sleep 1
+      num_rows = page.find('span', :text => /Showing items 1-/).text.match(/of (\d+)/).captures
+      num_rows[0].to_i.times do |meat|
+        puts page.find('script', :text => /itemPrice#{meat}/).text.match
+        #find isn't picking anything up...why not?
+      end
     end
   end
+  class Acme
+  end
+  class ShopRite
+  end 
 end
 
-shop = Shopper::SuperFresh.new
-shop.get_results
-exit
+shop = Shopper::APS.new
+shop.get_results('http://pathmark.apsupermarket.com/view-circular?storenum=532#ad')
+#shop.get_results('http://superfresh.apsupermarket.com/weekly-circular?storenum=747&brand=sf')
 
+=begin
+playing with poltergeist
 Capybara.default_driver = :poltergeist
 Capybara.register_driver :poltergeist do |app|
     options = {
@@ -48,17 +64,4 @@ Capybara.register_driver :poltergeist do |app|
 end
 
 visit('http://superfresh.apsupermarket.com/weekly-circular?storenum=747&brand=sf')
-
-
-# Dead ended with mechanize, which doesn't seem to play well with JavaScript
-##### MECHANIZE ###########
-#agent = Mechanize.new
-#page = agent.get('http://superfresh.apsupermarket.com/weekly-circular?storenum=747&brand=sf')
-#iframe_page = agent.click page.iframes.first
-#test = agent.click(iframe_page.link_with(:text => /Text Only/))
-#iframe_page.link_with(:text => /Text Only/) do |l|
-#  puts l.text
-#  Mechanize::Page::Link.new(l, agent, iframe_page).click
-#end
-#l = iframe_page.search ".//a
-#end 
+=end
