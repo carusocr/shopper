@@ -34,7 +34,9 @@ module Shopper
 			sleep 1
       num_rows = page.find('span', :text => /Showing items 1-/).text.match(/of (\d+)/).captures
       num_rows[0].to_i.times do |meat|
-        puts page.find('script', :text => /itemPrice#{meat}/).text.match
+        #puts page.find('td', id: "itemName#{meat}").text
+        puts page.find(:xpath, '//td[contains(@id,"itemName#{meat}")]').text
+        #puts page.find('td', :id => "itemPrice#{meat}").text
         #find isn't picking anything up...why not?
       end
     end
