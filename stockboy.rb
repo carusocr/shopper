@@ -33,11 +33,13 @@ module Shopper
       page.first(:link,'View All').click
 			sleep 1
       num_rows = page.find('span', :text => /Showing items 1-/).text.match(/of (\d+)/).captures
+      #page.all('td').each do |tr|
+      #  puts tr.text
+      #end
       num_rows[0].to_i.times do |meat|
-        #puts page.find('td', id: "itemName#{meat}").text
-        puts page.find(:xpath, '//td[contains(@id,"itemName#{meat}")]').text
-        #puts page.find('td', :id => "itemPrice#{meat}").text
-        #find isn't picking anything up...why not?
+        puts page.find(:xpath, "//td[@id = 'itemPrice#{meat}']").text
+        #puts page.find(:xpath, "//td[text()='itemPrice#{meat}')]").text
+        puts page.find(:xpath, "//script").text
       end
     end
   end
