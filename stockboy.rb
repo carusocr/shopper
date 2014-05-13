@@ -6,9 +6,7 @@ require 'capybara'
 require 'capybara/poltergeist'
 
 require 'capybara/dsl'
-#require 'capybara-webkit'
 Capybara.run_server = false
-#Capybara.current_driver = :webkit
 Capybara.current_driver = :selenium
 Capybara.app_host = "http://www.google.com"
 
