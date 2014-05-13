@@ -2,25 +2,25 @@
 
 # Working on a script that crawls supermarket pages and comparison shops for me.
 
-#require 'mechanize'
-#require 'nokogiri'
 require 'capybara'
 require 'capybara/poltergeist'
 
 require 'capybara/dsl'
-require 'capybara-webkit'
+#require 'capybara-webkit'
 Capybara.run_server = false
 #Capybara.current_driver = :webkit
 Capybara.current_driver = :selenium
 Capybara.app_host = "http://www.google.com"
 
 pathmark = 'http://pathmark.apsupermarket.com/view-circular?storenum=532#ad'
+pathmark_prices = Hash.new
 superfresh = 'http://superfresh.apsupermarket.com/weekly-circular?storenum=747&brand=sf'
+superfresh_prices = Hash.new
 
 module Shopper
   class APS #SuperFresh and Pathmark
     include Capybara::DSL
-    def get_results(store)
+    def get_results(store,pricelist)
       visit(store)
       sleep 1
       page.driver.browser.switch_to.frame(0)
@@ -33,13 +33,10 @@ module Shopper
       page.first(:link,'View All').click
 			sleep 1
       num_rows = page.find('span', :text => /Showing items 1-/).text.match(/of (\d+)/).captures
-      #page.all('td').each do |tr|
-      #  puts tr.text
-      #end
       num_rows[0].to_i.times do |meat|
-        puts page.find(:xpath, "//td[@id = 'itemPrice#{meat}']").text
-        #puts page.find(:xpath, "//td[text()='itemPrice#{meat}')]").text
-        puts page.find(:xpath, "//script").text
+        item_name =  page.find(:xpath, "//div[@id = 'itemName#{meat}']").text
+        item_price = page.find(:xpath, "//td[@id = 'itemPrice#{meat}']").text
+        pricelist["#{item_name}"] = item_price
       end
     end
   end
@@ -50,22 +47,5 @@ module Shopper
 end
 
 shop = Shopper::APS.new
-shop.get_results('http://pathmark.apsupermarket.com/view-circular?storenum=532#ad')
-#shop.get_results('http://superfresh.apsupermarket.com/weekly-circular?storenum=747&brand=sf')
-
-=begin
-playing with poltergeist
-Capybara.default_driver = :poltergeist
-Capybara.register_driver :poltergeist do |app|
-    options = {
-        :js_errors => true,
-        :timeout => 120,
-        :debug => false,
-        :phantomjs_options => ['--load-images=no', '--disk-cache=false'],
-        :inspector => true,
-    }
-    Capybara::Poltergeist::Driver.new(app, options)
-end
-
-visit('http://superfresh.apsupermarket.com/weekly-circular?storenum=747&brand=sf')
-=end
+shop.get_results(pathmark,pathmark_prices)
+shop.get_results(superfresh,superfresh_prices)
