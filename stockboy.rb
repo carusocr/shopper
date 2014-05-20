@@ -47,3 +47,4 @@ end
 shop = Shopper::APS.new
 shop.get_results(pathmark,pathmark_prices)
 shop.get_results(superfresh,superfresh_prices)
+puts pathmark_prices.keys.grep(/Chicken Breast/)
