@@ -14,13 +14,13 @@ pathmark = 'http://pathmark.apsupermarket.com/view-circular?storenum=532#ad'
 pathmark_prices = Hash.new
 superfresh = 'http://superfresh.apsupermarket.com/weekly-circular?storenum=747&brand=sf'
 superfresh_prices = Hash.new
+$meaty_targets = ['Chicken Breast','London Broil','Roast']
 
 module Shopper
   class APS #SuperFresh and Pathmark
     include Capybara::DSL
     def get_results(store,pricelist)
       storename = store[/http:\/\/(.+?)\./,1]
-      puts storename
       visit(store)
       sleep 1
       page.driver.browser.switch_to.frame(0)
@@ -37,14 +37,10 @@ module Shopper
         item_name =  page.find(:xpath, "//div[@id = 'itemName#{meat}']").text
         item_price = page.find(:xpath, "//td[@id = 'itemPrice#{meat}']").text
         pricelist["#{item_name}"] = item_price
-        if item_name =~ /Chicken Breast/
-          puts "Found #{item_name} at #{storename} for #{item_price}"
-        end
-        if item_name =~ /London Broil/
-          puts "Found #{item_name} at #{storename} for #{item_price}"
-        end
-        if item_name =~ /Roast/
-          puts "Found #{item_name} at #{storename} for #{item_price}"
+        $meaty_targets.each do |m|
+          if item_name =~ /#{m}/
+           puts "Found #{item_name} at #{storename} for #{item_price}"
+         end
         end
       end
     end
