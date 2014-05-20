@@ -38,13 +38,13 @@ module Shopper
         item_price = page.find(:xpath, "//td[@id = 'itemPrice#{meat}']").text
         pricelist["#{item_name}"] = item_price
         if item_name =~ /Chicken Breast/
-          puts "Found #{storename} at #{store} for #{item_price}"
+          puts "Found #{item_name} at #{storename} for #{item_price}"
         end
         if item_name =~ /London Broil/
-          puts "Found #{storename} at #{store} for #{item_price}"
+          puts "Found #{item_name} at #{storename} for #{item_price}"
         end
         if item_name =~ /Roast/
-          puts "Found #{storename} at #{store} for #{item_price}"
+          puts "Found #{item_name} at #{storename} for #{item_price}"
         end
       end
     end
