@@ -19,6 +19,8 @@ module Shopper
   class APS #SuperFresh and Pathmark
     include Capybara::DSL
     def get_results(store,pricelist)
+      storename = store[/http:\/\/(.+?)\./,1]
+      puts storename
       visit(store)
       sleep 1
       page.driver.browser.switch_to.frame(0)
@@ -35,6 +37,15 @@ module Shopper
         item_name =  page.find(:xpath, "//div[@id = 'itemName#{meat}']").text
         item_price = page.find(:xpath, "//td[@id = 'itemPrice#{meat}']").text
         pricelist["#{item_name}"] = item_price
+        if item_name =~ /Chicken Breast/
+          puts "Found #{storename} at #{store} for #{item_price}"
+        end
+        if item_name =~ /London Broil/
+          puts "Found #{storename} at #{store} for #{item_price}"
+        end
+        if item_name =~ /Roast/
+          puts "Found #{storename} at #{store} for #{item_price}"
+        end
       end
     end
   end
@@ -47,4 +58,3 @@ end
 shop = Shopper::APS.new
 shop.get_results(pathmark,pathmark_prices)
 shop.get_results(superfresh,superfresh_prices)
-puts pathmark_prices.keys.grep(/Chicken Breast/)
