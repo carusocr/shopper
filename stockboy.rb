@@ -1,6 +1,10 @@
 #!/usr/bin/env ruby
 
 # Working on a script that crawls supermarket pages and comparison shops for me.
+# Currently working for AP Supermarkets sites: SuperFresh and Pathmark.
+# Acme and Fresh Grocer have sites that require navigating multiple pages and don't
+# have text-only versions. Try scraping 1..max pages of subsection, collect items+prices
+# in hash, then apply same search.
 
 require 'capybara'
 require 'capybara/poltergeist'
@@ -14,9 +18,12 @@ pathmark = 'http://pathmark.apsupermarket.com/view-circular?storenum=532#ad'
 pathmark_prices = Hash.new
 superfresh = 'http://superfresh.apsupermarket.com/weekly-circular?storenum=747&brand=sf'
 superfresh_prices = Hash.new
+acme = 'http://acmemarkets.mywebgrocer.com/Circular/Philadelphia-10th-and-Reed/BE0473057/Weekly/2/1'
+acme_prices = Hash.new
 $meaty_targets = ['Chicken Breast','London Broil','Roast']
 
 module Shopper
+  include Capybara::DSL
   class APS #SuperFresh and Pathmark
     include Capybara::DSL
     def get_results(store,pricelist)
@@ -46,11 +53,23 @@ module Shopper
     end
   end
   class Acme
+    include Capybara::DSL
+    def get_results(store,pricelist)
+      visit(store)
+      page.find(:xpath,"//a[@id = 'navigation-categories']").hover
+      page.find(:link,"Meat & Seafood").click
+      sleep 2
+    end
+    
   end
   class ShopRite
   end 
+  class FreshGrocer
+  end
 end
 
-shop = Shopper::APS.new
-shop.get_results(pathmark,pathmark_prices)
-shop.get_results(superfresh,superfresh_prices)
+#shop = Shopper::APS.new
+#shop.get_results(pathmark,pathmark_prices)
+#shop.get_results(superfresh,superfresh_prices)
+shop = Shopper::Acme.new
+shop.get_results(acme,acme_prices)
