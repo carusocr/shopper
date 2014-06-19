@@ -1,10 +1,24 @@
 #!/usr/bin/env ruby
 
-# Working on a script that crawls supermarket pages and comparison shops for me.
-# Currently working for AP Supermarkets sites: SuperFresh and Pathmark.
-# Acme and Fresh Grocer have sites that require navigating multiple pages and don't
-# have text-only versions. Try scraping 1..max pages of subsection, collect items+prices
-# in hash, then apply same search.
+=begin
+
+Name: stockboy.rb
+Date Created: April 2014
+Author: Chris Caruso
+
+Script to crawl supermarket web pages and comparison shop for my frequent purchases.
+Currently using Capybara and Selenium, planning to switch to headless browser after
+testing completes (although it's fun to watch the automated browsing). Script 
+outputs search results to command line but plan to generate table. 
+
+Improvements:
+
+1. Prettier output, most likely a simple spreadsheet.
+2. Add options for additional search keywords.
+3. Integrate into todo list, including redirect to results table.
+4. Add more stores.
+
+=end
 
 require 'capybara'
 require 'capybara/poltergeist'
