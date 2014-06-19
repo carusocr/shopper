@@ -39,6 +39,8 @@ module Shopper
 			sleep 1
       page.first(:link,'View All').click
 			sleep 1
+			# added to test window resizing
+			page.driver.browser.manage.window.resize_to(800,800)
       num_rows = page.find('span', :text => /Showing items 1-/).text.match(/of (\d+)/).captures
       num_rows[0].to_i.times do |meat|
         item_name =  page.find(:xpath, "//div[@id = 'itemName#{meat}']").text
@@ -55,10 +57,20 @@ module Shopper
   class Acme
     include Capybara::DSL
     def get_results(store,pricelist)
+
       visit(store)
       page.find(:xpath,"//a[@id = 'navigation-categories']").hover
       page.find(:link,"Meat & Seafood").click
-      sleep 2
+
+=begin
+Next steps:
+	1. get max number of pages
+	2. go to each page and search for keywords, adding hits to array
+	3. return array
+=end
+
+      sleep 3
+
     end
     
   end
@@ -68,8 +80,8 @@ module Shopper
   end
 end
 
-#shop = Shopper::APS.new
-#shop.get_results(pathmark,pathmark_prices)
-#shop.get_results(superfresh,superfresh_prices)
+shop = Shopper::APS.new
+shop.get_results(pathmark,pathmark_prices)
+shop.get_results(superfresh,superfresh_prices)
 shop = Shopper::Acme.new
 shop.get_results(acme,acme_prices)
