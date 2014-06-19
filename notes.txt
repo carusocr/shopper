@@ -4,6 +4,16 @@ Initial goals:
 2. Select local weekly circular.
 3. Parse JS table generated upon category selection.
 
+Future goals:
+
+1. Clean up output into something more readable. Sorting by price isn't necessarily useful
+	since categories aren't perfectly clear.
+2. Integrate into todo list? Thinking something like:
+	"Search for usual suspects" will perform search of standard keyword set.
+	"Custom search" will let you fill out a small form and submit it as search terms.
+	Either option will then...redirect to a results table? 
+
+
 stackoverflow links
 
 http://stackoverflow.com/questions/17401678/capybara-with-phantomjs-poltergeist-selecting-value-from-drop-down-doesnt-tr
