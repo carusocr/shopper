@@ -75,6 +75,26 @@ module Shopper
       visit(store)
       page.find(:xpath,"//a[@id = 'navigation-categories']").hover
       page.find(:link,"Meat & Seafood").click
+      sleep 1
+      #get max number of pages to browse
+      #must be cleaner way to do this! 
+      lastpage = page.first(:xpath,"//a[contains(@title,'Page')]")[:title].match(/ of (\d+)/).captures[0].to_i
+      puts 'search placeholder'
+      
+      #next - collect prices from first page, then for loop 2..lastpage and collect rest into hash
+      # trying xpath searches...
+      #page.all(:xpath,"//div[contains(@id,'CircularListItem')]/h2").text
+      #page.all(:xpath,"//div[contains(@class,'image-container')]").text
+      # ^^^identical results, no surprise?
+      #page.first(:xpath,"//div[contains(@class,'image-container')]/img")[:alt]
+
+      # these work:
+      #lastpage = page.first(:xpath,"//div[@class='paging']/a[contains(@title,'Page')]")[:title] 
+      #lastpage = page.first(:xpath,"//div[@class='paging']/a[contains(@title,'Page')]")[:href]
+
+      #but doing the same with page.all returns a 'can't convert Symbol into Integer' error.
+      # investigate: https://gist.github.com/thijsc/1391107
+      # http://stackoverflow.com/questions/16365419/trouble-assigning-value-to-nested-hash
 
 =begin
 Next steps:
@@ -94,8 +114,8 @@ Next steps:
   end
 end
 
-shop = Shopper::APS.new
-shop.get_results(pathmark,pathmark_prices)
-shop.get_results(superfresh,superfresh_prices)
+#shop = Shopper::APS.new
+#shop.get_results(pathmark,pathmark_prices)
+#shop.get_results(superfresh,superfresh_prices)
 shop = Shopper::Acme.new
 shop.get_results(acme,acme_prices)
