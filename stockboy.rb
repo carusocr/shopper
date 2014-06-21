@@ -54,7 +54,7 @@ module Shopper
       page.first(:link,'View All').click
 			sleep 1
 			# added to test window resizing
-			page.driver.browser.manage.window.resize_to(800,800)
+			#page.driver.browser.manage.window.resize_to(800,800)
       num_rows = page.find('span', :text => /Showing items 1-/).text.match(/of (\d+)/).captures
       num_rows[0].to_i.times do |meat|
         item_name =  page.find(:xpath, "//div[@id = 'itemName#{meat}']").text
@@ -78,7 +78,6 @@ module Shopper
       page.find(:link,"Meat & Seafood").click
       sleep 1
       #get max number of pages to browse
-      #must be cleaner way to do this! 
       lastpage = page.first(:xpath,"//a[contains(@title,'Page')]")[:title][/ of (\d+)/,1].to_i
       #start building price hash
       for i in 2..lastpage
@@ -87,6 +86,10 @@ module Shopper
         #(continue assembling hash of prices here)
         sleep 1
       end
+      # this will build array of prices. Use collect! Also try each_entry
+
+      #page.all(:xpath,"//p[@class='price']").collect(&:text)
+
       #next - collect prices from first page, then for loop 2..lastpage and collect rest into hash
       # trying xpath searches...
       #page.all(:xpath,"//div[contains(@id,'CircularListItem')]/h2").text
@@ -113,8 +116,8 @@ module Shopper
   end
 end
 
-#shop = Shopper::APS.new
-#shop.get_results(pathmark,pathmark_prices)
-#shop.get_results(superfresh,superfresh_prices)
 shop = Shopper::Acme.new
 shop.get_results(acme,acme_prices)
+shop = Shopper::APS.new
+shop.get_results(pathmark,pathmark_prices)
+shop.get_results(superfresh,superfresh_prices)

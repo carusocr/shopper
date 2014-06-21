@@ -20,6 +20,8 @@ http://stackoverflow.com/questions/17401678/capybara-with-phantomjs-poltergeist-
 
 http://stackoverflow.com/questions/20206194/how-to-have-jquery-work-with-phantomjs-poltergeist-and-capybara?rq=1
 
+http://stackoverflow.com/questions/15005667/capybara-writing-drop-downs-options-texts-into-an-array/15166724#15166724
+
 resizing windows - operates differently in headless?
 
 http://stackoverflow.com/questions/13802363/how-to-set-browser-window-size-in-rspec-selenium
@@ -27,3 +29,7 @@ http://stackoverflow.com/questions/13802363/how-to-set-browser-window-size-in-rs
 basic resize function: 
 
       page.driver.browser.manage.window.resize_to(1200,800)
+
+Gotchas:
+
+Need to update selenium-webdriver gem every time Firefox updates.
