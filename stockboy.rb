@@ -18,6 +18,11 @@ Improvements:
 3. Integrate into todo list, including redirect to results table.
 4. Add more stores.
 
+Issues:
+
+Right now code is dependent on autonavigating to meat department. What about when I add
+other categories of foods? Is it better to do specific searches for the items and parse those?
+
 =end
 
 require 'capybara'
@@ -97,18 +102,14 @@ module Shopper
           end
         end
       end
-      # bug - getting duplicate entries with this method. Why? Maybe because there's two items matching on same string?
-
 			#...then loop it
-
       for i in 2..lastpage
         sleep 1
-        puts "Visiting page #{lastpage}..."
         page.first(:link,"Next Page").click
         #(continue assembling hash of prices here)
         sleep 1
       end
-      sleep 2
+      sleep 1
     end
     
   end
