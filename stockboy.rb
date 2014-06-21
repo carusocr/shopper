@@ -23,10 +23,10 @@ Improvements:
 require 'capybara'
 require 'capybara/poltergeist'
 
-require 'capybara/dsl'
+#require 'capybara/dsl'
 Capybara.run_server = false
 Capybara.current_driver = :selenium
-Capybara.app_host = "http://www.google.com"
+#Capybara.app_host = "http://www.google.com"
 
 pathmark = 'http://pathmark.apsupermarket.com/view-circular?storenum=532#ad'
 pathmark_prices = Hash.new
@@ -37,7 +37,6 @@ acme_prices = Hash.new
 $meaty_targets = ['Chicken Breast','London Broil','Roast']
 
 module Shopper
-  include Capybara::DSL
   class APS #SuperFresh and Pathmark
     include Capybara::DSL
     def get_results(store,pricelist)
@@ -63,57 +62,63 @@ module Shopper
         $meaty_targets.each do |m|
           if item_name =~ /#{m}/
            puts "Found #{item_name} at #{storename} for #{item_price}"
-         end
+          end
         end
       end
     end
   end
+
   class Acme
     include Capybara::DSL
     def get_results(store,pricelist)
-
+			storename = store[/http:\/\/(.+?)\./,1]
       visit(store)
 			page.driver.browser.manage.window.resize_to(1000,1000)
-      page.find(:xpath,"//a[@id = 'navigation-categories']").hover
+      #page.find(:xpath,"//a[@id = 'navigation-categories']").hover
+			#page link is much cleaner
+			page.find(:link,'Ad Categories').hover
+			sleep 1
       page.find(:link,"Meat & Seafood").click
       sleep 1
       #get max number of pages to browse
       lastpage = page.first(:xpath,"//a[contains(@title,'Page')]")[:title][/ of (\d+)/,1].to_i
+			#figured out how to assemble list of prices per page
+			#page.all(:xpath,"//div[contains(@id,'CircularListItem')]").collect(&:text)
       #start building price hash
+			#prelim price scraper:
+
+			page.all(:xpath,"//div[contains(@id,'CircularListItem')]").each do |node|
+				item_name = node.first('img')[:alt]
+				item_price = node.first('p').text
+				pricelist["#{item_name}"] = item_price
+        $meaty_targets.each do |m|
+          if item_name =~ /#{m}/
+            puts "Found #{item_name} at #{storename} for #{item_price}"
+          end
+        end
+      end
+      # bug - getting duplicate entries with this method. Why? Maybe because there's two items matching on same string?
+
+			#...then loop it
+
       for i in 2..lastpage
         sleep 1
+        puts "Visiting page #{lastpage}..."
         page.first(:link,"Next Page").click
         #(continue assembling hash of prices here)
         sleep 1
       end
-      # this will build array of prices. Use collect! Also try each_entry
-
-      #page.all(:xpath,"//p[@class='price']").collect(&:text)
-
-      #next - collect prices from first page, then for loop 2..lastpage and collect rest into hash
-      # trying xpath searches...
-      #page.all(:xpath,"//div[contains(@id,'CircularListItem')]/h2").text
-      #page.all(:xpath,"//div[contains(@class,'image-container')]").text
-      # ^^^identical results, no surprise?
-      #page.first(:xpath,"//div[contains(@class,'image-container')]/img")[:alt]
-
-      # these work:
-      #lastpage = page.first(:xpath,"//div[@class='paging']/a[contains(@title,'Page')]")[:title] 
-      #lastpage = page.first(:xpath,"//div[@class='paging']/a[contains(@title,'Page')]")[:href]
-
-      #but doing the same with page.all returns a 'can't convert Symbol into Integer' error.
-      # investigate: https://gist.github.com/thijsc/1391107
-      # http://stackoverflow.com/questions/16365419/trouble-assigning-value-to-nested-hash
-
       sleep 2
-
     end
     
   end
+
   class ShopRite
   end 
+
   class FreshGrocer
   end
+
 end
 
 shop = Shopper::Acme.new
