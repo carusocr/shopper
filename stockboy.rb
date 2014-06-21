@@ -73,14 +73,20 @@ module Shopper
     def get_results(store,pricelist)
 
       visit(store)
+			page.driver.browser.manage.window.resize_to(1000,1000)
       page.find(:xpath,"//a[@id = 'navigation-categories']").hover
       page.find(:link,"Meat & Seafood").click
       sleep 1
       #get max number of pages to browse
       #must be cleaner way to do this! 
-      lastpage = page.first(:xpath,"//a[contains(@title,'Page')]")[:title].match(/ of (\d+)/).captures[0].to_i
-      puts 'search placeholder'
-      
+      lastpage = page.first(:xpath,"//a[contains(@title,'Page')]")[:title][/ of (\d+)/,1].to_i
+      #start building price hash
+      for i in 2..lastpage
+        sleep 1
+        page.first(:link,"Next Page").click
+        #(continue assembling hash of prices here)
+        sleep 1
+      end
       #next - collect prices from first page, then for loop 2..lastpage and collect rest into hash
       # trying xpath searches...
       #page.all(:xpath,"//div[contains(@id,'CircularListItem')]/h2").text
@@ -96,14 +102,7 @@ module Shopper
       # investigate: https://gist.github.com/thijsc/1391107
       # http://stackoverflow.com/questions/16365419/trouble-assigning-value-to-nested-hash
 
-=begin
-Next steps:
-	1. get max number of pages
-	2. go to each page and search for keywords, adding hits to array
-	3. return array
-=end
-
-      sleep 3
+      sleep 2
 
     end
     
