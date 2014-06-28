@@ -39,6 +39,8 @@ superfresh = 'http://superfresh.apsupermarket.com/weekly-circular?storenum=747&b
 superfresh_prices = Hash.new
 acme = 'http://acmemarkets.mywebgrocer.com/Circular/Philadelphia-10th-and-Reed/BE0473057/Weekly/2/1'
 acme_prices = Hash.new
+frogro = 'http://thefreshgrocer.shoprite.com/Circular/The-Fresh-Grocer-of-Walnut/E7E1123699/Weekly/2'
+frogro_prices = Hash.new
 $meaty_targets = ['Chicken Breast','London Broil','Roast']
 
 module Shopper
@@ -73,41 +75,49 @@ module Shopper
     end
   end
 
-  class Acme
+  class AcmeFroGro
+    # tweak for frogro
     include Capybara::DSL
     def get_results(store,pricelist)
 			storename = store[/http:\/\/(.+?)\./,1]
       visit(store)
 			page.driver.browser.manage.window.resize_to(1000,1000)
-      #page.find(:xpath,"//a[@id = 'navigation-categories']").hover
-			#page link is much cleaner
-			page.find(:link,'Ad Categories').hover
+      if store == 'acme'
+			  page.find(:link,'Ad Categories').hover
+      else
+			  page.find(:link,'Categories').hover
+      end
 			sleep 2
       page.find(:link,"Meat & Seafood").click
       sleep 2
       #get max number of pages to browse
       lastpage = page.first(:xpath,"//a[contains(@title,'Page')]")[:title][/ of (\d+)/,1].to_i
-			#figured out how to assemble list of prices per page
-			#page.all(:xpath,"//div[contains(@id,'CircularListItem')]").collect(&:text)
-      #start building price hash
-			#prelim price scraper:
-
 			page.all(:xpath,"//div[contains(@id,'CircularListItem')]").each do |node|
 				item_name = node.first('img')[:alt]
 				item_price = node.first('p').text
 				pricelist["#{item_name}"] = item_price
         $meaty_targets.each do |m|
           if item_name =~ /#{m}/
-            puts "Found #{item_name} at #{storename} for #{item_price}"
+            puts "#{storename}: #{item_name} for #{item_price}."
           end
         end
       end
 			#...then loop it
       for i in 2..lastpage
         sleep 1
-        page.first(:link,"Next Page").click
-        #(continue assembling hash of prices here)
-        sleep 1
+         page.first(:link,"Next Page").click
+         sleep 1
+			    page.all(:xpath,"//div[contains(@id,'CircularListItem')]").each do |node|
+         #(continue assembling hash of prices here)
+			  	item_name = node.first('img')[:alt]
+			  	item_price = node.first('p').text
+			  	pricelist["#{item_name}"] = item_price
+          $meaty_targets.each do |m|
+           if item_name =~ /#{m}/
+             puts "#{storename}: #{item_name} for #{item_price}."
+           end
+          end
+        end
       end
       sleep 2
     end
@@ -116,14 +126,12 @@ module Shopper
 
   class ShopRite
   end 
-
-  class FreshGrocer
-  end
-
 end
 
-shop = Shopper::Acme.new
+shop = Shopper::AcmeFroGro.new
+shop.get_results(frogro,frogro_prices)
+shop = Shopper::AcmeFroGro.new
 shop.get_results(acme,acme_prices)
-shop = Shopper::APS.new
-shop.get_results(pathmark,pathmark_prices)
-shop.get_results(superfresh,superfresh_prices)
+#shop = Shopper::APS.new
+#shop.get_results(pathmark,pathmark_prices)
+#shop.get_results(superfresh,superfresh_prices)
