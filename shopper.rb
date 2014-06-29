@@ -139,14 +139,14 @@ def build_table
   $prices.each do |row|
     file.write("    %tr\n")
     row.each do |col|  
-      file.write("      %td= '#{col.sub("'","\'")}'\n")
+      file.write("      %td= '#{col.sub('\'','`')}'\n")
     end
   end
 end
 
-#shop = Shopper::AcmeFroGro.new
-#shop.get_results(frogro,frogro_prices)
-#shop.get_results(acme,acme_prices)
+shop = Shopper::AcmeFroGro.new
+shop.get_results(frogro,frogro_prices)
+shop.get_results(acme,acme_prices)
 shop = Shopper::APS.new
 shop.get_results(pathmark,pathmark_prices)
 shop.get_results(superfresh,superfresh_prices)
