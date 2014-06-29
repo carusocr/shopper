@@ -41,6 +41,7 @@ acme = 'http://acmemarkets.mywebgrocer.com/Circular/Philadelphia-10th-and-Reed/B
 acme_prices = Hash.new
 frogro = 'http://thefreshgrocer.shoprite.com/Circular/The-Fresh-Grocer-of-Walnut/E7E1123699/Weekly/2'
 frogro_prices = Hash.new
+$prices = []
 $meaty_targets = ['Chicken Breast','London Broil','Roast']
 
 module Shopper
@@ -68,7 +69,8 @@ module Shopper
         pricelist["#{item_name}"] = item_price
         $meaty_targets.each do |m|
           if item_name =~ /#{m}/
-           puts "Found #{item_name} at #{storename} for #{item_price}"
+           #puts "Found #{item_name} at #{storename} for #{item_price}"
+            $prices << ["#{storename}","#{item_name}","#{item_price}"]
           end
         end
       end
@@ -98,7 +100,8 @@ module Shopper
 				pricelist["#{item_name}"] = item_price
         $meaty_targets.each do |m|
           if item_name =~ /#{m}/
-            puts "#{storename}: #{item_name} for #{item_price}."
+  #          puts "#{storename}: #{item_name} for #{item_price}."
+            $prices << ["#{storename}","#{item_name}","#{item_price}"]
           end
         end
       end
@@ -114,7 +117,8 @@ module Shopper
 			  	pricelist["#{item_name}"] = item_price
           $meaty_targets.each do |m|
            if item_name =~ /#{m}/
-             puts "#{storename}: #{item_name} for #{item_price}."
+            #puts "#{storename}: #{item_name} for #{item_price}."
+            $prices << ["#{storename}","#{item_name}","#{item_price}"]
            end
           end
         end
@@ -127,11 +131,23 @@ module Shopper
   class ShopRite
   end 
 end
+def build_table
+  file_loc = '/Users/carusocr/projects/todo/views/table.haml'
+  file = File.open(file_loc,'w')
+  file.write("%table{:border => '1'}\n")
+  file.write("  %tbody\n")
+  $prices.each do |row|
+    file.write("    %tr\n")
+    row.each do |col|  
+      file.write("      %td= '#{col.sub("'","\'")}'\n")
+    end
+  end
+end
 
-shop = Shopper::AcmeFroGro.new
-shop.get_results(frogro,frogro_prices)
-shop = Shopper::AcmeFroGro.new
-shop.get_results(acme,acme_prices)
-#shop = Shopper::APS.new
-#shop.get_results(pathmark,pathmark_prices)
-#shop.get_results(superfresh,superfresh_prices)
+#shop = Shopper::AcmeFroGro.new
+#shop.get_results(frogro,frogro_prices)
+#shop.get_results(acme,acme_prices)
+shop = Shopper::APS.new
+shop.get_results(pathmark,pathmark_prices)
+shop.get_results(superfresh,superfresh_prices)
+build_table
