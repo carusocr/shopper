@@ -131,17 +131,28 @@ module Shopper
   class ShopRite
   end 
 end
+
 def build_table
-  file_loc = '/Users/carusocr/projects/todo/views/table.haml'
+  #file_loc = '/Users/carusocr/projects/todo/views/table.haml'
+  file_loc = '/home/carusocr/projects/todo/views/table.haml'
   file = File.open(file_loc,'w')
-  file.write("%table{:border => '1'}\n")
+  file.write("%link{:href => 'style.css', :rel => 'stylesheet'}\n")
+  file.write("%table#shoplist\n")
   file.write("  %tbody\n")
+  file.write("    %tr\n")
+  file.write("    %th Store\n")
+  file.write("    %th Item\n")
+  file.write("    %th Price\n")
   $prices.each do |row|
-    file.write("    %tr\n")
+    store = row[0]
+    file.write("    %tr.#{store}\n")
     row.each do |col|  
       file.write("      %td= '#{col.sub('\'','`')}'\n")
     end
   end
+  file.write("%br\n%a{:href => '/present'}\n")
+  file.write("  %button\n")
+  file.write("    Home\n")
 end
 
 shop = Shopper::AcmeFroGro.new
@@ -150,4 +161,4 @@ shop.get_results(acme,acme_prices)
 shop = Shopper::APS.new
 shop.get_results(pathmark,pathmark_prices)
 shop.get_results(superfresh,superfresh_prices)
-#build_table
+build_table
