@@ -133,8 +133,8 @@ module Shopper
 end
 
 def build_table
-  #file_loc = '/Users/carusocr/projects/todo/views/table.haml'
-  file_loc = '/home/carusocr/projects/todo/views/table.haml'
+  file_loc = '/Users/carusocr/projects/todo/views/table.haml'
+  #file_loc = '/home/carusocr/projects/todo/views/table.haml'
   file = File.open(file_loc,'w')
   file.write("%link{:href => 'style.css', :rel => 'stylesheet'}\n")
   file.write("%table#shoplist\n")
@@ -157,7 +157,7 @@ end
 
 shop = Shopper::AcmeFroGro.new
 shop.get_results(frogro,frogro_prices)
-shop.get_results(acme,acme_prices)
+#shop.get_results(acme,acme_prices)
 shop = Shopper::APS.new
 shop.get_results(pathmark,pathmark_prices)
 shop.get_results(superfresh,superfresh_prices)
