@@ -28,10 +28,7 @@ other categories of foods? Is it better to do specific searches for the items an
 require 'capybara'
 require 'capybara/poltergeist'
 
-#require 'capybara/dsl'
-Capybara.run_server = false
-Capybara.current_driver = :selenium
-#Capybara.app_host = "http://www.google.com"
+Capybara.current_driver = :poltergeist
 
 pathmark = 'http://pathmark.apsupermarket.com/view-circular?storenum=532#ad'
 pathmark_prices = Hash.new
@@ -50,18 +47,11 @@ module Shopper
     def get_results(store,pricelist)
       storename = store[/http:\/\/(.+?)\./,1]
       visit(store)
-      sleep 2
       page.driver.browser.switch_to.frame(0)
-      sleep 2
       page.first(:link,'Text Only').click
-      sleep 2
 			#add each loop for categories in arg array
       page.first(:link,'Meat').click
-			sleep 2
       page.first(:link,'View All').click
-			sleep 2
-			# added to test window resizing
-			page.driver.browser.manage.window.resize_to(800,800)
       num_rows = page.find('span', :text => /Showing items 1-/).text.match(/of (\d+)/).captures
       num_rows[0].to_i.times do |meat|
         item_name =  page.find(:xpath, "//div[@id = 'itemName#{meat}']").text
@@ -157,7 +147,6 @@ end
 
 shop = Shopper::AcmeFroGro.new
 shop.get_results(frogro,frogro_prices)
-#shop.get_results(acme,acme_prices)
 shop = Shopper::APS.new
 shop.get_results(pathmark,pathmark_prices)
 shop.get_results(superfresh,superfresh_prices)
