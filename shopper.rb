@@ -28,7 +28,7 @@ other categories of foods? Is it better to do specific searches for the items an
 require 'capybara'
 require 'capybara/poltergeist'
 
-Capybara.current_driver = :poltergeist
+Capybara.current_driver = :selenium
 
 pathmark = 'http://pathmark.apsupermarket.com/view-circular?storenum=532#ad'
 pathmark_prices = Hash.new
