@@ -79,9 +79,9 @@ module Shopper
       else
 			  page.find(:link,'Categories').hover
       end
-			sleep 2
+			sleep 1
       page.find(:link,"Meat & Seafood").click
-      sleep 2
+      sleep 1
       #get max number of pages to browse
       lastpage = page.first(:xpath,"//a[contains(@title,'Page')]")[:title][/ of (\d+)/,1].to_i
 			page.all(:xpath,"//div[contains(@id,'CircularListItem')]").each do |node|
