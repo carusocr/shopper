@@ -15,7 +15,7 @@ outputs search results to command line but plan to generate table.
 
 require 'capybara'
 
-Capybara.run_server = false
+#Capybara.run_server = false
 Capybara.current_driver = :selenium
 
 pathmark = 'http://pathmark.apsupermarket.com/view-circular?storenum=532#ad'
@@ -63,14 +63,35 @@ module Shopper
 
  
   end
-  
-  class APS # Super Fresh and Pathmark
+
+  class APS #SuperFresh and Pathmark
+    include Capybara::DSL
+    def get_results(store,pricelist)
+      storename = store[/http:\/\/(.+?)\./,1]
+      visit(store)
+      $meaty_targets.each do |m|
+        page.fill_in('Search Ad', :with => m)
+        page.click_button('Search Ad')
+#      page.driver.browser.switch_to.frame(0)
+#      page.first(:link,'Text Only').click
+      #add each loop for categories in arg array
+#      page.first(:link,'Meat').click
+#      page.first(:link,'View All').click
+        num_rows = page.find('span', :text => /Showing items 1-/).text.match(/of (\d+)/).captures
+        num_rows[0].to_i.times do |meat|
+          item_name =  page.find(:xpath, "//div[@id = 'itemName#{meat}']").text
+          item_price = page.find(:xpath, "//td[@id = 'itemPrice#{meat}']").text
+          pricelist["#{item_name}"] = item_price
+          scan_price(storename, item_name, m, item_price)
+        end
+      end
+    end
   end
 
 end
 
 def scan_price(storename, item_name, target_item, item_price)
- if item_name =~ /#{target_item}/
+ if item_name =~ /#{target_item}\W+?/ #added \W to eliminate 'roasted' etc.
    puts "#{storename}: #{item_name} for #{item_price}."
    $prices << ["#{storename}","#{item_name}","#{item_price}"]
  end
