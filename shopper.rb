@@ -97,9 +97,7 @@ module Shopper
       end
 			#...then loop it
       for i in 2..lastpage
-        sleep 1
          page.first(:link,"Next Page").click
-         sleep 1
 			    page.all(:xpath,"//div[contains(@id,'CircularListItem')]").each do |node|
          #(continue assembling hash of prices here)
 			  	item_name = node.first('img')[:alt]

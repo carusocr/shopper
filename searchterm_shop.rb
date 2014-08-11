@@ -27,7 +27,7 @@ acme_prices = Hash.new
 frogro = 'http://thefreshgrocer.shoprite.com/Circular/The-Fresh-Grocer-of-Walnut/E7E1123699/Weekly/2'
 frogro_prices = Hash.new
 $prices = []
-$meaty_targets = ['London Broil','Roast','Chicken Breast']
+$meaty_targets = ['Salmon','London Broil','Roast','Chicken Breast']
 
 module Shopper
   class Acme
