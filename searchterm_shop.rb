@@ -69,14 +69,12 @@ module Shopper
     def get_results(store,pricelist)
       storename = store[/http:\/\/(.+?)\./,1]
       visit(store)
+      page.driver.browser.switch_to.frame(0)
+      page.first(:link,'Text Only').click
+      #page.driver.browser.manage.window.resize_to(1000,1000)
       $meaty_targets.each do |m|
-        page.fill_in('Search Ad', :with => m)
-        page.click_button('Search Ad')
-#      page.driver.browser.switch_to.frame(0)
-#      page.first(:link,'Text Only').click
-      #add each loop for categories in arg array
-#      page.first(:link,'Meat').click
-#      page.first(:link,'View All').click
+        find(:xpath,"//input[@id='txtSearch']").set(m)
+        page.click_link('Search')
         num_rows = page.find('span', :text => /Showing items 1-/).text.match(/of (\d+)/).captures
         num_rows[0].to_i.times do |meat|
           item_name =  page.find(:xpath, "//div[@id = 'itemName#{meat}']").text
@@ -91,7 +89,7 @@ module Shopper
 end
 
 def scan_price(storename, item_name, target_item, item_price)
- if item_name =~ /#{target_item}\W+?/ #added \W to eliminate 'roasted' etc.
+ if item_name =~ /#{target_item} ?/ #added \W to eliminate 'roasted' etc.
    puts "#{storename}: #{item_name} for #{item_price}."
    $prices << ["#{storename}","#{item_name}","#{item_price}"]
  end
@@ -120,6 +118,8 @@ def build_table
   file.write("    Home\n")
 end
 
-shop = Shopper::Acme.new
-shop.get_results(acme,acme_prices)
-build_table
+#shop = Shopper::Acme.new
+#shop.get_results(acme,acme_prices)
+shop = Shopper::APS.new
+shop.get_results(pathmark,pathmark_prices)
+#build_table
