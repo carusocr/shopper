@@ -15,7 +15,6 @@ outputs search results to command line but plan to generate table.
 
 require 'capybara'
 
-#Capybara.run_server = false
 Capybara.current_driver = :selenium
 
 pathmark = 'http://pathmark.apsupermarket.com/view-circular?storenum=532#ad'
@@ -39,6 +38,7 @@ module Shopper
       page.driver.browser.manage.window.resize_to(1000,1000)
       $meaty_targets.each do |m|
         page.fill_in('Search Weekly Ads', :with => m)
+        # need variation for FroGro
         page.click_button('GO')
         lastpage = page.has_link?('Next Page') ? page.first(:xpath,"//a[contains(@title,'Page')]")[:title][/ of (\d+)/,1].to_i : 0
         page.all(:xpath,"//div[contains(@id,'CircularListItem')]").each do |node|
@@ -70,18 +70,20 @@ module Shopper
       storename = store[/http:\/\/(.+?)\./,1]
       visit(store)
       page.driver.browser.switch_to.frame(0)
-      page.first(:link,'Text Only').click
+      #page.first(:link,'Text Only').click
       #page.driver.browser.manage.window.resize_to(1000,1000)
       $meaty_targets.each do |m|
         find(:xpath,"//input[@id='txtSearch']").set(m)
-        page.click_link('Search')
-        num_rows = page.find('span', :text => /Showing items 1-/).text.match(/of (\d+)/).captures
+        page.click_button('Search')
+        #num_rows = page.first('td', :text => /ITEMS 1-/).text.match(/of (\d+)/).captures
+        num_rows = page.first(:xpath,"//td[@class='pagenum']").text.match(/OF (\d+)/).captures
         num_rows[0].to_i.times do |meat|
-          item_name =  page.find(:xpath, "//div[@id = 'itemName#{meat}']").text
-          item_price = page.find(:xpath, "//td[@id = 'itemPrice#{meat}']").text
+          item_name =  page.find(:xpath, "//p[@id = 'itemName#{meat}']").text
+          item_price = page.find(:xpath, "//p[@id = 'itemPrice#{meat}']").text
           pricelist["#{item_name}"] = item_price
           scan_price(storename, item_name, m, item_price)
         end
+        sleep 1
       end
     end
   end
@@ -118,8 +120,10 @@ def build_table
   file.write("    Home\n")
 end
 
-shop = Shopper::Acme.new
-shop.get_results(acme,acme_prices)
+#shop = Shopper::Acme.new
+#shop.get_results(acme,acme_prices)
 shop = Shopper::APS.new
 shop.get_results(pathmark,pathmark_prices)
-build_table
+shop = Shopper::Acme.new
+shop.get_results(frogro,frogro_prices)
+#build_table
