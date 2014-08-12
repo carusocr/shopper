@@ -118,8 +118,8 @@ def build_table
   file.write("    Home\n")
 end
 
-#shop = Shopper::Acme.new
-#shop.get_results(acme,acme_prices)
+shop = Shopper::Acme.new
+shop.get_results(acme,acme_prices)
 shop = Shopper::APS.new
 shop.get_results(pathmark,pathmark_prices)
-#build_table
+build_table
