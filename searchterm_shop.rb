@@ -30,15 +30,16 @@ $prices = []
 $meaty_targets = ['Salmon','London Broil','Roast','Chicken Breast']
 
 module Shopper
-  class Acme
+  class AcmeFroGro
     include Capybara::DSL
     def get_results(store, pricelist)
     #this one is different....search based
       storename = store[/http:\/\/(.+?)\./,1]
+      searchterm = storename == 'acmemarkets' ? 'Search Weekly Ads' : 'Search Weekly Circular'
       visit(store)
       page.driver.browser.manage.window.resize_to(1000,1000)
       $meaty_targets.each do |m|
-        page.fill_in('Search Weekly Ads', :with => m)
+        page.fill_in(searchterm, :with => m)
         page.click_button('GO')
         lastpage = page.has_link?('Next Page') ? page.first(:xpath,"//a[contains(@title,'Page')]")[:title][/ of (\d+)/,1].to_i : 0
         page.all(:xpath,"//div[contains(@id,'CircularListItem')]").each do |node|
@@ -118,8 +119,10 @@ def build_table
   file.write("    Home\n")
 end
 
-shop = Shopper::Acme.new
+shop = Shopper::AcmeFroGro.new
 shop.get_results(acme,acme_prices)
+shop.get_results(frogro,frogro_prices)
 shop = Shopper::APS.new
 shop.get_results(pathmark,pathmark_prices)
+shop.get_results(superfresh,superfresh_prices)
 build_table
