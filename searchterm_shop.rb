@@ -39,7 +39,6 @@ module Shopper
       page.driver.browser.manage.window.resize_to(1000,1000)
       $meaty_targets.each do |m|
         page.fill_in(searchterm, :with => m)
-        page.fill_in('Search Weekly Ads', :with => m)
         page.click_button('GO')
         lastpage = page.has_link?('Next Page') ? page.first(:xpath,"//a[contains(@title,'Page')]")[:title][/ of (\d+)/,1].to_i : 0
         page.all(:xpath,"//div[contains(@id,'CircularListItem')]").each do |node|
@@ -71,12 +70,9 @@ module Shopper
       storename = store[/http:\/\/(.+?)\./,1]
       visit(store)
       page.driver.browser.switch_to.frame(0)
-      #page.first(:link,'Text Only').click
-      #page.driver.browser.manage.window.resize_to(1000,1000)
       $meaty_targets.each do |m|
         find(:xpath,"//input[@id='txtSearch']").set(m)
         page.click_button('Search')
-        #num_rows = page.first('td', :text => /ITEMS 1-/).text.match(/of (\d+)/).captures
         num_rows = page.first(:xpath,"//td[@class='pagenum']").text.match(/OF (\d+)/).captures
         num_rows[0].to_i.times do |meat|
           item_name =  page.find(:xpath, "//p[@id = 'itemName#{meat}']").text
