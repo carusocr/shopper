@@ -72,7 +72,13 @@ module Shopper
       page.driver.browser.switch_to.frame(0)
       $meaty_targets.each do |m|
         find(:xpath,"//input[@id='txtSearch']").set(m)
+        puts "Looking for #{m}..."
         page.click_button('Search')
+        sleep 1 #no sleep sometimes makes next part fail?
+        if page.first(:xpath,"//div[contains(text(),'Sorry')]")
+          puts "No results found for #{m}."
+          next
+        end
         num_rows = page.first(:xpath,"//td[@class='pagenum']").text.match(/OF (\d+)/).captures
         num_rows[0].to_i.times do |meat|
           item_name =  page.find(:xpath, "//p[@id = 'itemName#{meat}']").text
