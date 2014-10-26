@@ -26,7 +26,7 @@ acme_prices = Hash.new
 frogro = 'http://thefreshgrocer.shoprite.com/Circular/The-Fresh-Grocer-of-Walnut/E7E1123699/Weekly/2'
 frogro_prices = Hash.new
 $prices = []
-$meaty_targets = ['Salmon','London Broil','Roast','Chicken Breast']
+$meaty_targets = ['Salmon','London Broil','Roast','Sardines','Chicken Breast']
 
 module Shopper
   class AcmeFroGro
@@ -48,6 +48,7 @@ module Shopper
           scan_price(storename, item_name, m, item_price)
         end
         for i in 2..lastpage
+          sleep 1
           page.first(:link,"Next Page").click
           page.all(:xpath,"//div[contains(@id,'CircularListItem')]").each do |node|
             #(continue assembling hash of prices here)
