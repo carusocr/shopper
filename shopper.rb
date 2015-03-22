@@ -15,7 +15,15 @@ outputs search results to command line but plan to generate table.
 
 require 'capybara'
 
-Capybara.current_driver = :selenium
+#trying switch to chrome, firefox versions are breaking script
+#Capybara.current_driver = :selenium
+
+Capybara.register_driver :chrome do |app|
+  Capybara::Selenium::Driver.new(app, :browser => :chrome)
+end
+
+Capybara.javascript_driver = :chrome
+Capybara.current_driver = :chrome   #should this be current or default? Explore reasons.
 
 pathmark = 'http://pathmark.apsupermarket.com/view-circular?storenum=532#ad'
 pathmark_prices = Hash.new
@@ -72,13 +80,17 @@ module Shopper
       visit(store)
       page.driver.browser.switch_to.frame(0)
       $meaty_targets.each do |m|
-        find(:xpath,"//input[@id='txtSearch']").set(m)
+        #find(:xpath,"//input[@id='txtSearch']").set(m)
+        page.fill_in('txtSearch', :with => m)
         puts "Looking for #{m}..."
         page.click_button('Search')
         sleep 1 #no sleep sometimes makes next part fail?
         if page.first(:xpath,"//div[contains(text(),'Sorry')]")
           puts "No results found for #{m}."
           next
+        end
+        if page.first(:xpath,"//a[contains(@onClick,'showAll()')]")
+          page.execute_script "showAll()"
         end
         num_rows = page.first(:xpath,"//td[@class='pagenum']").text.match(/OF (\d+)/).captures
         num_rows[0].to_i.times do |meat|
@@ -124,9 +136,9 @@ def build_table
   file.write("    Home\n")
 end
 
-shop = Shopper::AcmeFroGro.new
-shop.get_results(acme,acme_prices)
-shop.get_results(frogro,frogro_prices)
+#shop = Shopper::AcmeFroGro.new
+#shop.get_results(acme,acme_prices)
+#shop.get_results(frogro,frogro_prices)
 shop = Shopper::APS.new
 shop.get_results(pathmark,pathmark_prices)
 shop.get_results(superfresh,superfresh_prices)
