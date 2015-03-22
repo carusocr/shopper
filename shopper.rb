@@ -85,8 +85,13 @@ module Shopper
         #find(:xpath,"//input[@id='txtSearch']").set(m)
         page.fill_in('txtSearch', :with => m)
         puts "Looking for #{m}..."
-        page.click_button('Search')
+        # try changing this to a find.click?
+        #page.click_button('Search')
+        #running same code sometimes works, sometimes doesn't. Think it's something 
+        # with page load time. Look into how to make this explicitly wait until
+        # js search function exists?
         sleep 1 #no sleep sometimes makes next part fail?
+        page.find(:button,'Search').click
         if page.first(:xpath,"//div[contains(text(),'Sorry')]")
           puts "No results found for #{m}."
           next
