@@ -1,8 +1,6 @@
 Shopper
 ========
 
-Scrapes grocery store sites and finds cheapest price on specified item.
-
-Current sites searched are Philadelphia-centric: Pathmark, ACME, Fresh Grocer, SuperFresh.
-
-Output is written to html table and linked to daily to-do list page.
+Scrapes grocery store sites and finds cheapest price on specified item. Prints to command line and also writes output to table in my to-do list project directory.
+Currently working for my local grocery chains : Pathmark, Super Fresh, 
+Acme, Fresh Grocer.
