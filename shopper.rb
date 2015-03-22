@@ -11,6 +11,8 @@ Currently using Capybara and Selenium, planning to switch to headless browser af
 testing completes (although it's fun to watch the automated browsing). Script 
 outputs search results to command line but plan to generate table. 
 
+*BUG: Superfresh is crashing after entering text into search box.
+
 =end
 
 require 'capybara'
@@ -92,6 +94,7 @@ module Shopper
         if page.first(:xpath,"//a[contains(@onClick,'showAll()')]")
           page.execute_script "showAll()"
         end
+        #Superfresh is choking again on this part. Fix.
         num_rows = page.first(:xpath,"//td[@class='pagenum']").text.match(/OF (\d+)/).captures
         num_rows[0].to_i.times do |meat|
           item_name =  page.find(:xpath, "//p[@id = 'itemName#{meat}']").text
@@ -140,6 +143,6 @@ end
 #shop.get_results(acme,acme_prices)
 #shop.get_results(frogro,frogro_prices)
 shop = Shopper::APS.new
-shop.get_results(pathmark,pathmark_prices)
+#shop.get_results(pathmark,pathmark_prices)
 shop.get_results(superfresh,superfresh_prices)
 build_table
