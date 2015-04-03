@@ -12,6 +12,7 @@ testing completes (although it's fun to watch the automated browsing). Script
 outputs search results to command line but plan to generate table. 
 
 *BUG: Superfresh is crashing after entering text into search box.
+* Tried exact same thing twice...failed once, worked second time. Why?
 
 =end
 
@@ -148,6 +149,6 @@ end
 #shop.get_results(acme,acme_prices)
 #shop.get_results(frogro,frogro_prices)
 shop = Shopper::APS.new
-#shop.get_results(pathmark,pathmark_prices)
+shop.get_results(pathmark,pathmark_prices)
 shop.get_results(superfresh,superfresh_prices)
 build_table
