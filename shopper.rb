@@ -100,7 +100,11 @@ module Shopper
           page.execute_script "showAll()"
         end
         #Superfresh is choking again on this part. Fix.
+        # clue: items without the search term in item name break this?
         num_rows = page.first(:xpath,"//td[@class='pagenum']").text.match(/OF (\d+)/).captures
+        # this is returning a lot more than expected, need to change xpath?
+        #no, it's returning correct amount but this isn't pageturning 
+        puts "got #{num_rows} rows and loop count is going to be #{num_rows[0].to_i}."
         num_rows[0].to_i.times do |meat|
           item_name =  page.find(:xpath, "//p[@id = 'itemName#{meat}']").text
           item_price = page.find(:xpath, "//p[@id = 'itemPrice#{meat}']").text
@@ -148,6 +152,6 @@ end
 #shop.get_results(acme,acme_prices)
 #shop.get_results(frogro,frogro_prices)
 shop = Shopper::APS.new
-#shop.get_results(pathmark,pathmark_prices)
+shop.get_results(pathmark,pathmark_prices)
 shop.get_results(superfresh,superfresh_prices)
 build_table
