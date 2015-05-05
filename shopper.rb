@@ -12,6 +12,7 @@ testing completes (although it's fun to watch the automated browsing). Script
 outputs search results to command line but plan to generate table. 
 
 *BUG: Superfresh is crashing after entering text into search box.
+* Tried exact same thing twice...failed once, worked second time. Why?
 
 =end
 
@@ -81,14 +82,17 @@ module Shopper
       $meaty_targets.each do |m|
         page.fill_in('txtSearch', :with => m)
         puts "Looking for #{m}..."
-        #sleep 1
+        sleep 1
         page.find(:button,'Search').click
+        # annoying to have to add delays, but 1 sec prevents pathmark page from crash
+        # and 2 sec prevents superfresh page from crash. Find better way to do this.
+        sleep 2
         if page.first(:xpath,"//div[contains(text(),'Sorry')]")
           puts "No results found for #{m}."
           next
         end
-        if page.first(:xpath,"//a[contains(@onclick,'showAll()')]")
-          page.execute_script "showAll()"
+        if page.first(:xpath,"//a[contains(@onclick,'showall()')]")
+          page.execute_script "showall()"
           puts "There's a showall!"
         end
         num_rows = page.first(:xpath,"//td[@class='pagenum']").text.match(/OF (\d+)/).captures
@@ -99,7 +103,6 @@ module Shopper
           pricelist["#{item_name}"] = item_price
           scan_price(storename, item_name, m, item_price)
         end
-        sleep 1
       end
     end
   end
