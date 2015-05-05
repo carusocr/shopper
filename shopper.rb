@@ -18,9 +18,6 @@ outputs search results to command line but plan to generate table.
 
 require 'capybara'
 
-#trying switch to chrome, firefox versions are breaking script
-#Capybara.current_driver = :selenium
-
 Capybara.register_driver :chrome do |app|
   Capybara::Selenium::Driver.new(app, :browser => :chrome)
 end
@@ -83,25 +80,21 @@ module Shopper
       visit(store)
       page.driver.browser.switch_to.frame(0)
       $meaty_targets.each do |m|
-        #find(:xpath,"//input[@id='txtSearch']").set(m)
         page.fill_in('txtSearch', :with => m)
         puts "Looking for #{m}..."
-        # try changing this to a find.click?
-        #page.click_button('Search')
-        #running same code sometimes works, sometimes doesn't. Think it's something 
-        # with page load time. Look into how to make this explicitly wait until
-        # js search function exists?
-        sleep 1 #no sleep sometimes makes next part fail?
+        #sleep 1
         page.find(:button,'Search').click
+        puts 'clicked'
         if page.first(:xpath,"//div[contains(text(),'Sorry')]")
           puts "No results found for #{m}."
           next
         end
-        if page.first(:xpath,"//a[contains(@onClick,'showAll()')]")
-          page.execute_script "showAll()"
+        if page.first(:xpath,"//a[contains(@onclick,'showall()')]")
+          page.execute_script "showall()"
+          puts "There's a showall!"
         end
-        #Superfresh is choking again on this part. Fix.
         num_rows = page.first(:xpath,"//td[@class='pagenum']").text.match(/OF (\d+)/).captures
+        puts "got #{num_rows} rows and loop count is going to be #{num_rows[0].to_i}."
         num_rows[0].to_i.times do |meat|
           item_name =  page.find(:xpath, "//p[@id = 'itemName#{meat}']").text
           item_price = page.find(:xpath, "//p[@id = 'itemPrice#{meat}']").text
