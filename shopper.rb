@@ -83,12 +83,13 @@ module Shopper
         puts "Looking for #{m}..."
         #sleep 1
         page.find(:button,'Search').click
+        puts 'clicked'
         if page.first(:xpath,"//div[contains(text(),'Sorry')]")
           puts "No results found for #{m}."
           next
         end
-        if page.first(:xpath,"//a[contains(@onclick,'showAll()')]")
-          page.execute_script "showAll()"
+        if page.first(:xpath,"//a[contains(@onclick,'showall()')]")
+          page.execute_script "showall()"
           puts "There's a showall!"
         end
         num_rows = page.first(:xpath,"//td[@class='pagenum']").text.match(/OF (\d+)/).captures
@@ -136,9 +137,9 @@ def build_table
   file.write("    Home\n")
 end
 
-shop = Shopper::AcmeFroGro.new
-shop.get_results(acme,acme_prices)
-shop.get_results(frogro,frogro_prices)
+#shop = Shopper::AcmeFroGro.new
+#shop.get_results(acme,acme_prices)
+#shop.get_results(frogro,frogro_prices)
 shop = Shopper::APS.new
 shop.get_results(pathmark,pathmark_prices)
 shop.get_results(superfresh,superfresh_prices)
