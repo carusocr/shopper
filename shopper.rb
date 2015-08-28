@@ -91,8 +91,8 @@ module Shopper
           puts "No results found for #{m}."
           next
         end
-        if page.first(:xpath,"//a[contains(@onclick,'showall()')]")
-          page.execute_script "showall()"
+        if page.first(:xpath,"//a[contains(@onclick,'showAll()')]")
+          page.execute_script "showAll()"
           puts "There's a showall!"
         end
         num_rows = page.first(:xpath,"//td[@class='pagenum']").text.match(/OF (\d+)/).captures
