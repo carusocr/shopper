@@ -93,10 +93,8 @@ module Shopper
         end
         if page.first(:xpath,"//a[contains(@onclick,'showAll()')]")
           page.execute_script "showAll()"
-          puts "There's a showall!"
         end
         num_rows = page.first(:xpath,"//td[@class='pagenum']").text.match(/OF (\d+)/).captures
-        puts "got #{num_rows} rows and loop count is going to be #{num_rows[0].to_i}."
         num_rows[0].to_i.times do |meat|
           item_name =  page.find(:xpath, "//p[@id = 'itemName#{meat}']").text
           item_price = page.find(:xpath, "//p[@id = 'itemPrice#{meat}']").text
