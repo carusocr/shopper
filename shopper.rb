@@ -11,9 +11,6 @@ Currently using Capybara and Selenium, planning to switch to headless browser af
 testing completes (although it's fun to watch the automated browsing). Script 
 outputs search results to command line but plan to generate table. 
 
-*BUG: Superfresh is crashing after entering text into search box.
-* Tried exact same thing twice...failed once, worked second time. Why?
-
 =end
 
 require 'capybara'
@@ -25,10 +22,6 @@ end
 Capybara.javascript_driver = :chrome
 Capybara.current_driver = :chrome   #should this be current or default? Explore reasons.
 
-pathmark = 'http://pathmark.apsupermarket.com/view-circular?storenum=532#ad'
-pathmark_prices = Hash.new
-superfresh = 'http://superfresh.apsupermarket.com/weekly-circular?storenum=747&brand=sf'
-superfresh_prices = Hash.new
 acme = 'http://acmemarkets.mywebgrocer.com/Circular/Philadelphia-10th-and-Reed/BE0473057/Weekly/2/1'
 acme_prices = Hash.new
 frogro = 'http://thefreshgrocer.shoprite.com/Circular/The-Fresh-Grocer-of-Walnut/E7E1123699/Weekly/2'
@@ -40,7 +33,6 @@ module Shopper
   class AcmeFroGro
     include Capybara::DSL
     def get_results(store, pricelist)
-    #this one is different....search based
       storename = store[/http:\/\/(.+?)\./,1]
       searchterm = storename == 'acmemarkets' ? 'Search Weekly Ads' : 'Search Weekly Circular'
       visit(store)
@@ -71,38 +63,6 @@ module Shopper
     end
 
  
-  end
-
-  class APS #SuperFresh and Pathmark
-    include Capybara::DSL
-    def get_results(store,pricelist)
-      storename = store[/http:\/\/(.+?)\./,1]
-      visit(store)
-      page.driver.browser.switch_to.frame(0)
-      $meaty_targets.each do |m|
-        page.fill_in('txtSearch', :with => m)
-        puts "Looking for #{m}..."
-        sleep 1
-        page.find(:button,'Search').click
-        # annoying to have to add delays, but 1 sec prevents pathmark page from crash
-        # and 2 sec prevents superfresh page from crash. Find better way to do this.
-        sleep 2
-        if page.first(:xpath,"//div[contains(text(),'Sorry')]")
-          puts "No results found for #{m}."
-          next
-        end
-        if page.first(:xpath,"//a[contains(@onclick,'showAll()')]")
-          page.execute_script "showAll()"
-        end
-        num_rows = page.first(:xpath,"//td[@class='pagenum']").text.match(/OF (\d+)/).captures
-        num_rows[0].to_i.times do |meat|
-          item_name =  page.find(:xpath, "//p[@id = 'itemName#{meat}']").text
-          item_price = page.find(:xpath, "//p[@id = 'itemPrice#{meat}']").text
-          pricelist["#{item_name}"] = item_price
-          scan_price(storename, item_name, m, item_price)
-        end
-      end
-    end
   end
 
 end
@@ -140,7 +100,8 @@ end
 shop = Shopper::AcmeFroGro.new
 shop.get_results(acme,acme_prices)
 shop.get_results(frogro,frogro_prices)
-shop = Shopper::APS.new
-shop.get_results(pathmark,pathmark_prices)
-shop.get_results(superfresh,superfresh_prices)
+#APS went bankrupt and sold their stores to ACME! Ugh. Add Shoprite and something else.
+#shop = Shopper::APS.new
+#shop.get_results(pathmark,pathmark_prices)
+#shop.get_results(superfresh,superfresh_prices)
 build_table
