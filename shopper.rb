@@ -26,6 +26,8 @@ acme = 'http://acmemarkets.mywebgrocer.com/Circular/Philadelphia-10th-and-Reed/B
 acme_prices = Hash.new
 frogro = 'http://thefreshgrocer.shoprite.com/Circular/The-Fresh-Grocer-of-Walnut/E7E1123699/Weekly/2'
 frogro_prices = Hash.new
+shoprite = 'http://plan.shoprite.com/Circular/ShopRite-of-Oregon-Ave/977B652/Weekly/1'
+shoprite_prices = Hash.new
 $prices = []
 $meaty_targets = ['Salmon','London Broil','Roast','Sardines','Chicken Breast']
 
@@ -34,11 +36,10 @@ module Shopper
     include Capybara::DSL
     def get_results(store, pricelist)
       storename = store[/http:\/\/(.+?)\./,1]
-      searchterm = storename == 'acmemarkets' ? 'Search Weekly Ads' : 'Search Weekly Circular'
       visit(store)
       page.driver.browser.manage.window.resize_to(1000,1000)
       $meaty_targets.each do |m|
-        page.fill_in(searchterm, :with => m)
+        page.fill_in("Search Weekly", :with => m) # works for both "Search Weekly Ads/Circular"
         page.click_button('GO')
         lastpage = page.has_link?('Next Page') ? page.first(:xpath,"//a[contains(@title,'Page')]")[:title][/ of (\d+)/,1].to_i : 0
         page.all(:xpath,"//div[contains(@id,'CircularListItem')]").each do |node|
@@ -98,8 +99,9 @@ def build_table
 end
 
 shop = Shopper::AcmeFroGro.new
-shop.get_results(acme,acme_prices)
-shop.get_results(frogro,frogro_prices)
+shop.get_results(shoprite,shoprite_prices)
+#shop.get_results(acme,acme_prices)
+#shop.get_results(frogro,frogro_prices)
 #APS went bankrupt and sold their stores to ACME! Ugh. Add Shoprite and something else.
 #shop = Shopper::APS.new
 #shop.get_results(pathmark,pathmark_prices)
