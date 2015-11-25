@@ -100,10 +100,6 @@ end
 
 shop = Shopper::AcmeFroGro.new
 shop.get_results(shoprite,shoprite_prices)
-#shop.get_results(acme,acme_prices)
-#shop.get_results(frogro,frogro_prices)
-#APS went bankrupt and sold their stores to ACME! Ugh. Add Shoprite and something else.
-#shop = Shopper::APS.new
-#shop.get_results(pathmark,pathmark_prices)
-#shop.get_results(superfresh,superfresh_prices)
+shop.get_results(acme,acme_prices)
+shop.get_results(frogro,frogro_prices)
 build_table
