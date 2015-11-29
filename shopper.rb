@@ -36,6 +36,7 @@ module Shopper
     include Capybara::DSL
     def get_results(store, pricelist)
       storename = store[/http:\/\/(.+?)\./,1]
+      storename = 'shoprite' if storename == 'plan'
       visit(store)
       page.driver.browser.manage.window.resize_to(1000,1000)
       $meaty_targets.each do |m|
