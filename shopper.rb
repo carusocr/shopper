@@ -28,6 +28,8 @@ frogro = 'http://thefreshgrocer.shoprite.com/Circular/The-Fresh-Grocer-of-Walnut
 frogro_prices = Hash.new
 shoprite = 'http://plan.shoprite.com/Circular/ShopRite-of-Oregon-Ave/977B652/Weekly/1'
 shoprite_prices = Hash.new
+safeway = 'http://plan.safeway.com/Circular/Seattle-2201-E-Madison-St-/2E2374900/Weekly/2'
+safeway_prices = Hash.new
 $prices = []
 $meaty_targets = ['Salmon','London Broil','Roast','Sardines','Chicken Breast']
 
@@ -100,7 +102,8 @@ def build_table
 end
 
 shop = Shopper::AcmeFroGro.new
-shop.get_results(shoprite,shoprite_prices)
-shop.get_results(acme,acme_prices)
-shop.get_results(frogro,frogro_prices)
+#shop.get_results(shoprite,shoprite_prices)
+#shop.get_results(acme,acme_prices)
+#shop.get_results(frogro,frogro_prices)
+shop.get_results(safeway,safeway_prices)
 build_table
