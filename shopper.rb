@@ -3,14 +3,9 @@
 =begin
 
 Name: shopper.rb
-Date Created: April 2014
 Author: Chris Caruso
 
 Script to crawl supermarket web pages and comparison shop for my frequent purchases.
-Currently using Capybara and Selenium, planning to switch to headless browser after
-testing completes (although it's fun to watch the automated browsing). Script 
-outputs search results to command line but plan to generate table. 
-
 =end
 
 require 'capybara'
@@ -24,6 +19,10 @@ Capybara.current_driver = :chrome   #should this be current or default? Explore 
 
 safeway = 'http://plan.safeway.com/Circular/Seattle-2201-E-Madison-St-/2E2374900/Weekly/2'
 safeway_prices = Hash.new
+qfc = 'https://www.qfc.com/weeklyad?StoreCode=00847&DivisionId=705'
+qfc_prices = Hash.new
+# qfc is new store...click on 'Grid View' and then just parse entire page?
+
 $prices = []
 $meaty_targets = ['Salmon','London Broil','Roast','Sardines','Chicken Breast']
 
