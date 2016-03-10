@@ -9,6 +9,7 @@ Script to crawl supermarket web pages and comparison shop for my frequent purcha
 =end
 
 require 'capybara'
+require 'pry'
 
 Capybara.register_driver :chrome do |app|
   Capybara::Selenium::Driver.new(app, :browser => :chrome)
@@ -16,6 +17,11 @@ end
 
 Capybara.javascript_driver = :chrome
 Capybara.current_driver = :chrome   #should this be current or default? Explore reasons.
+
+#added for pry testing
+include Capybara::DSL
+binding.pry
+
 
 safeway = 'http://plan.safeway.com/Circular/Seattle-2201-E-Madison-St-/2E2374900/Weekly/2'
 safeway_prices = Hash.new
