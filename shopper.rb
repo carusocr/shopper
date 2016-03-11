@@ -20,7 +20,6 @@ Capybara.current_driver = :chrome   #should this be current or default? Explore 
 
 #added for pry testing
 include Capybara::DSL
-binding.pry
 
 
 safeway = 'http://plan.safeway.com/Circular/Seattle-2201-E-Madison-St-/2E2374900/Weekly/2'
@@ -28,7 +27,11 @@ safeway_prices = Hash.new
 qfc = 'https://www.qfc.com/weeklyad?StoreCode=00847&DivisionId=705'
 qfc_prices = Hash.new
 # qfc is new store...click on 'Grid View' and then just parse entire page?
+# page.execute_script "wishabi.app.gotoGridView()"
+# need to execute javascript to go to grid view. What then?
 
+binding.pry
+exit
 $prices = []
 $meaty_targets = ['Salmon','London Broil','Roast','Sardines','Chicken Breast']
 
