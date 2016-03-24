@@ -19,28 +19,45 @@ Capybara.javascript_driver = :chrome
 Capybara.current_driver = :chrome   #should this be current or default? Explore reasons.
 
 #added for pry testing
-include Capybara::DSL
+#include Capybara::DSL
 
 
 safeway = 'http://plan.safeway.com/Circular/Seattle-2201-E-Madison-St-/2E2374900/Weekly/2'
 safeway_prices = Hash.new
 qfc = 'https://www.qfc.com/weeklyad?StoreCode=00847&DivisionId=705'
 qfc_prices = Hash.new
-# qfc is new store...click on 'Grid View' and then just parse entire page?
-# page.execute_script "wishabi.app.gotoGridView()"
-# need to execute javascript to go to grid view. What then?
 
-binding.pry
-exit
+#binding.pry
+#exit
+
 $prices = []
 $meaty_targets = ['Salmon','London Broil','Roast','Sardines','Chicken Breast']
 
 module Shopper
+  
+  class QFC
+    include Capybara::DSL #figure out how to avoid this
+    def get_results(store,pricelist)
+      storename = store[/http:\/\/(.+?)\./,1]
+      visit store
+      page.driver.browser.switch_to.frame(0)
+      page.execute_script "wishabi.app.gotoGridView()"
+      $meaty_targets.each do |m|
+        page.all(:xpath,"//li[@class='item']").each do |node|
+          #clean these up!
+          item_name = node.first(:xpath,"./div[@class='item-name']").text
+          item_price = node.first(:xpath,"./div[@class='item-price']").text
+          pricelist["#{item_name}"] = item_price
+          scan_price(storename, item_name, m, item_price)
+        end
+      end
+    end
+  end
+
   class Safeway
     include Capybara::DSL
     def get_results(store, pricelist)
       storename = store[/http:\/\/(.+?)\./,1]
-      storename = 'shoprite' if storename == 'plan'
       visit(store)
       page.driver.browser.manage.window.resize_to(1000,1000)
       $meaty_targets.each do |m|
@@ -82,7 +99,6 @@ end
 
 def build_table
   file_loc = '/Users/carusocr/projects/todo/views/table.haml'
-  #file_loc = '/home/carusocr/projects/todo/views/table.haml'
   file = File.open(file_loc,'w')
   file.write("%link{:href => 'style.css', :rel => 'stylesheet'}\n")
   file.write("%table#shoplist\n")
@@ -103,6 +119,8 @@ def build_table
   file.write("    Home\n")
 end
 
+shop = Shopper::QFC.new
+shop.get_results(qfc,qfc_prices)
 shop = Shopper::Safeway.new
 shop.get_results(safeway,safeway_prices)
 build_table
