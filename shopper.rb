@@ -38,7 +38,7 @@ module Shopper
   class QFC
     include Capybara::DSL #figure out how to avoid this
     def get_results(store,pricelist)
-      storename = store[/http:\/\/(.+?)\./,1]
+      storename = 'QFC'
       visit store
       page.driver.browser.switch_to.frame(0)
       page.execute_script "wishabi.app.gotoGridView()"
@@ -57,7 +57,7 @@ module Shopper
   class Safeway
     include Capybara::DSL
     def get_results(store, pricelist)
-      storename = store[/http:\/\/(.+?)\./,1]
+      storename = 'Safeway'
       visit(store)
       page.driver.browser.manage.window.resize_to(1000,1000)
       $meaty_targets.each do |m|
