@@ -31,7 +31,7 @@ qfc_prices = Hash.new
 #exit
 
 $prices = []
-$meaty_targets = ['Salmon','London Broil','Roast','Sardines','Chicken Breast']
+$meaty_targets = ['Salmon','London Broil','Roast','Sardines','Chicken Breast','Chicken Thighs','Cod','Tilapia','Ground Beef','Top Round','Bottom Round','Ribeye','New York Strip','Pork Chops','Pork Tenderloin','Chicken Leg Quarters','Shrimp']
 
 module Shopper
   
@@ -42,6 +42,8 @@ module Shopper
       visit store
       page.driver.browser.switch_to.frame(0)
       page.execute_script "wishabi.app.gotoGridView()"
+      #sleep 1
+      page.first(:button,"Meat & Seafood").click
       $meaty_targets.each do |m|
         page.all(:xpath,"//li[@class='item']").each do |node|
           #clean these up!
@@ -66,7 +68,7 @@ module Shopper
         lastpage = page.has_link?('Next Page') ? page.first(:xpath,"//a[contains(@title,'Page')]")[:title][/ of (\d+)/,1].to_i : 0
         page.all(:xpath,"//div[contains(@id,'CircularListItem')]").each do |node|
           item_name = node.first('img')[:alt]
-          item_price = node.first('p').text
+          item_price = node.first('p').text.sub(/with card/i,"").sub(/lb/i,"per pound")
           pricelist["#{item_name}"] = item_price
           scan_price(storename, item_name, m, item_price)
         end
@@ -76,7 +78,7 @@ module Shopper
           page.all(:xpath,"//div[contains(@id,'CircularListItem')]").each do |node|
             #(continue assembling hash of prices here)
             item_name = node.first('img')[:alt]
-            item_price = node.first('p').text
+            item_price = node.first('p').text.sub(/with card/i,"")
             pricelist["#{item_name}"] = item_price
             scan_price(storename, item_name, m, item_price)
           end
@@ -91,9 +93,11 @@ module Shopper
 end
 
 def scan_price(storename, item_name, target_item, item_price)
- if item_name =~ /#{target_item} ?/ #added \W to eliminate 'roasted' etc.
-   puts "#{storename}: #{item_name} for #{item_price}."
-   $prices << ["#{storename}","#{item_name}","#{item_price}"]
+  if item_name =~ /#{target_item} ?/ #added \W to eliminate 'roasted' etc.
+    #puts "#{storename}: #{item_name} for #{item_price}."
+    #db insert statement
+    puts "insert into grocery_list values ('#{item_name}','#{item_price}','#{storename}');"
+    $prices << ["#{storename}","#{item_name}","#{item_price}"]
  end
 end
 
@@ -119,8 +123,8 @@ def build_table
   file.write("    Home\n")
 end
 
-shop = Shopper::QFC.new
-shop.get_results(qfc,qfc_prices)
+#shop = Shopper::QFC.new
+#shop.get_results(qfc,qfc_prices)
 shop = Shopper::Safeway.new
 shop.get_results(safeway,safeway_prices)
 build_table
