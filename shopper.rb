@@ -9,6 +9,7 @@ Script to crawl supermarket web pages and comparison shop for my frequent purcha
 =end
 
 require 'capybara'
+require 'capybara/dsl'
 require 'pry'
 
 Capybara.register_driver :chrome do |app|
@@ -93,13 +94,16 @@ module Shopper
 end
 
 def scan_price(storename, item_name, target_item, item_price)
-  if item_name =~ /#{target_item} ?/ #added \W to eliminate 'roasted' etc.
+  if item_name =~ /#{target_item} ?/
     #puts "#{storename}: #{item_name} for #{item_price}."
     #db insert statement
-    puts "insert into grocery_list values ('#{item_name}','#{item_price}','#{storename}');"
+    puts "insert into grocery_list values ('#{item_name}','#{item_price}','#{storename.sub("QFC","Q F C")}');"
     $prices << ["#{storename}","#{item_name}","#{item_price}"]
  end
 end
+
+def choose_lowest_price
+end 
 
 def build_table
   file_loc = '/Users/carusocr/projects/todo/views/table.haml'
@@ -123,8 +127,8 @@ def build_table
   file.write("    Home\n")
 end
 
-#shop = Shopper::QFC.new
-#shop.get_results(qfc,qfc_prices)
+shop = Shopper::QFC.new
+shop.get_results(qfc,qfc_prices)
 shop = Shopper::Safeway.new
 shop.get_results(safeway,safeway_prices)
 build_table
