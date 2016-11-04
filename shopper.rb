@@ -17,7 +17,7 @@ Capybara.register_driver :chrome do |app|
 end
 
 Capybara.javascript_driver = :chrome
-Capybara.current_driver = :chrome   #should this be current or default? Explore reasons.
+Capybara.default_driver = :chrome   #should this be current or default? Explore reasons.
 
 #added for pry testing
 #include Capybara::DSL
@@ -103,6 +103,18 @@ def scan_price(storename, item_name, target_item, item_price)
 end
 
 def choose_lowest_price
+=begin
+What needs to be done here?
+
+1. For each item in target list, load list of matching items.
+2. For each list, find lowest instance of particular list. Be careful of 'EA' vs 'per pound'!
+3. Delete all but the cheapest of that item.
+
+*special cases
+- What about when it's an item like Safeway's "chicken thighs or breasts 1.99 per pound?"
+- weirdly named items...say there's shrimp for 5.99 per pound and 'skewers' for 3.99?
+
+=end
 end 
 
 def build_table
@@ -127,8 +139,8 @@ def build_table
   file.write("    Home\n")
 end
 
-shop = Shopper::QFC.new
-shop.get_results(qfc,qfc_prices)
 shop = Shopper::Safeway.new
 shop.get_results(safeway,safeway_prices)
+shop = Shopper::QFC.new
+shop.get_results(qfc,qfc_prices)
 build_table
