@@ -31,9 +31,8 @@ qfc_prices = Hash.new
 #binding.pry
 #exit
 
-$prices = []
 $meaty_targets = ['Salmon','London Broil','Roast','Sardines','Chicken Breast','Chicken Thighs','Cod','Tilapia','Ground Beef','Top Round','Bottom Round','Ribeye','New York Strip','Pork Chops','Pork Tenderloin','Chicken Leg Quarters','Shrimp']
-
+$results_hash= Hash.new {|h,k| h[k] = {}}
 module Shopper
   
   class QFC
@@ -47,7 +46,6 @@ module Shopper
       page.first(:button,"Meat & Seafood").click
       $meaty_targets.each do |m|
         page.all(:xpath,"//li[@class='item']").each do |node|
-          #clean these up!
           item_name = node.first(:xpath,"./div[@class='item-name']").text
           item_price = node.first(:xpath,"./div[@class='item-price']").text
           pricelist["#{item_name}"] = item_price
@@ -85,37 +83,23 @@ module Shopper
           end
         end
       end
-
     end
 
- 
   end
 
 end
 
 def scan_price(storename, item_name, target_item, item_price)
   if item_name =~ /#{target_item} ?/
-    #puts "#{storename}: #{item_name} for #{item_price}."
-    #db insert statement
-    puts "insert into grocery_list values ('#{item_name}','#{item_price}','#{storename.sub("QFC","Q F C")}');"
-    $prices << ["#{storename}","#{item_name}","#{item_price}"]
+    # set hash value if nil, otherwise set hash value if price is less?
+    $results_hash[target_item][:price] ||= item_price
+    $results_hash[target_item][:name] ||= item_name
+    $results_hash[target_item][:store] ||= storename
+    $results_hash[target_item][:price] == item_price if item_price < $results_hash[target_item][:price] && item_price !~ /EA/
+    $results_hash[target_item][:name] == item_name if item_price < $results_hash[target_item][:price] && item_price !~ /EA/
+    $results_hash[target_item][:store] == item_name if item_price < $results_hash[target_item][:price] && item_price !~ /EA/
  end
 end
-
-def choose_lowest_price
-=begin
-What needs to be done here?
-
-1. For each item in target list, load list of matching items.
-2. For each list, find lowest instance of particular list. Be careful of 'EA' vs 'per pound'!
-3. Delete all but the cheapest of that item.
-
-*special cases
-- What about when it's an item like Safeway's "chicken thighs or breasts 1.99 per pound?"
-- weirdly named items...say there's shrimp for 5.99 per pound and 'skewers' for 3.99?
-
-=end
-end 
 
 def build_table
   file_loc = '/Users/carusocr/projects/todo/views/table.haml'
@@ -143,4 +127,7 @@ shop = Shopper::Safeway.new
 shop.get_results(safeway,safeway_prices)
 shop = Shopper::QFC.new
 shop.get_results(qfc,qfc_prices)
-build_table
+#build_table
+$results_hash.each do |h,k|
+  puts "insert into grocery_list values ('#{k[:name]}','#{k[:price]}','#{k[:store].sub("QFC","Q F C")}');"
+end
