@@ -8,9 +8,10 @@ Author: Chris Caruso
 Script to crawl supermarket web pages and comparison shop for my frequent purchases.
 =end
 
+require 'yaml'
 require 'capybara'
 require 'capybara/dsl'
-require 'pry'
+require 'sequel'
 
 Capybara.register_driver :chrome do |app|
   Capybara::Selenium::Driver.new(app, :browser => :chrome)
@@ -28,8 +29,9 @@ safeway_prices = Hash.new
 qfc = 'https://www.qfc.com/weeklyad?StoreCode=00847&DivisionId=705'
 qfc_prices = Hash.new
 
-#binding.pry
-#exit
+cfgfile='db.yml'
+abort "db.yml config file not found!" unless File.file?(cfgfile)
+db_cfg = YAML::load(File.open(cfgfile))
 
 $meaty_targets = ['Salmon','London Broil','Roast','Sardines','Chicken Breast','Chicken Thighs','Cod','Tilapia','Ground Beef','Top Round','Bottom Round','Ribeye','New York Strip','Pork Chops','Pork Tenderloin','Chicken Leg Quarters','Shrimp']
 $results_hash= Hash.new {|h,k| h[k] = {}}
@@ -123,11 +125,20 @@ def build_table
   file.write("    Home\n")
 end
 
+def update_database(db_cfg)
+  dbh = Sequel.connect(db_cfg)
+  #delete old data
+  dbh[:grocery_list].where('item != ?',"none of these").delete
+  $results_hash.each do |_,v|
+    puts "Found #{v[:name]} for #{v[:price]} at #{v[:store]}."
+    #add some exception handling here
+    dbh[:grocery_list].insert([:item, :price, :store], [v[:name], v[:price], v[:store]])
+  end
+end
+
 shop = Shopper::Safeway.new
 shop.get_results(safeway,safeway_prices)
 shop = Shopper::QFC.new
 shop.get_results(qfc,qfc_prices)
 #build_table
-$results_hash.each do |h,k|
-  puts "insert into grocery_list values ('#{k[:name]}','#{k[:price]}','#{k[:store].sub("QFC","Q F C")}');"
-end
+update_database(db_cfg)
