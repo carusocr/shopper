@@ -6,6 +6,10 @@ Name: shopper.rb
 Author: Chris Caruso
 
 Script to crawl supermarket web pages and comparison shop for my frequent purchases.
+
+*****
+*need to fix chicken breasts...why are they not showing up?
+
 =end
 
 require 'yaml'
@@ -71,7 +75,12 @@ module Shopper
           item_name = node.first('img')[:alt]
           item_price = node.first('p').text.sub(/with card/i,"").sub(/lb/i,"per pound")
           pricelist["#{item_name}"] = item_price
-          scan_price(storename, item_name, m, item_price)
+          if item_name =~ /Breasts or Thighs/
+            scan_price(storename, "Chicken Breast", m, item_price)
+            scan_price(storename, "Chicken Thighs", m, item_price)
+          else
+            scan_price(storename, item_name, m, item_price)
+          end
         end
         for i in 2..lastpage
           sleep 1
@@ -92,47 +101,30 @@ module Shopper
 end
 
 def scan_price(storename, item_name, target_item, item_price)
+  # If there is a per-pound price, ALWAYS supersede the '$ EA' price.
   if item_name =~ /#{target_item} ?/
     # set hash value if nil, otherwise set hash value if price is less?
     $results_hash[target_item][:price] ||= item_price
     $results_hash[target_item][:name] ||= item_name
     $results_hash[target_item][:store] ||= storename
-    $results_hash[target_item][:price] == item_price if item_price < $results_hash[target_item][:price] && item_price !~ /EA/
-    $results_hash[target_item][:name] == item_name if item_price < $results_hash[target_item][:price] && item_price !~ /EA/
-    $results_hash[target_item][:store] == item_name if item_price < $results_hash[target_item][:price] && item_price !~ /EA/
- end
-end
-
-def build_table
-  file_loc = '/Users/carusocr/projects/todo/views/table.haml'
-  file = File.open(file_loc,'w')
-  file.write("%link{:href => 'style.css', :rel => 'stylesheet'}\n")
-  file.write("%table#shoplist\n")
-  file.write("  %tbody\n")
-  file.write("    %tr\n")
-  file.write("    %th Store\n")
-  file.write("    %th Item\n")
-  file.write("    %th Price\n")
-  $prices.each do |row|
-    store = row[0]
-    file.write("    %tr.#{store}\n")
-    row.each do |col|  
-      file.write("      %td= '#{col.sub('\'','`')}'\n")
+    $results_hash[target_item][:price] < item_price
+    # vvv Can this be cleaned up? vvv
+    if item_price < $results_hash[target_item][:price] && item_price !~ /EA/ || (item_price < $results_hash[target_item][:price] =~ /EA/ && item_price =~ /EA/ && $results_hash[target_item][:price] =~ /EA/) || (item_price !~ /EA/ && $results_hash[target_item][:price] =~ /EA/)
+      $results_hash[target_item][:price] = item_price
+      $results_hash[target_item][:name] = item_name
     end
-  end
-  file.write("%br\n%a{:href => '/present'}\n")
-  file.write("  %button\n")
-  file.write("    Home\n")
+ end
 end
 
 def update_database(db_cfg)
   dbh = Sequel.connect(db_cfg)
   #delete old data
   dbh[:grocery_list].where('item != ?',"none of these").delete
-  $results_hash.each do |_,v|
-    puts "Found #{v[:name]} for #{v[:price]} at #{v[:store]}."
+  $results_hash.each do |k,v|
+    next if v[:price] == ""
+    puts "Found #{k} for #{v[:price]} at #{v[:store]}."
     #add some exception handling here
-    dbh[:grocery_list].insert([:item, :price, :store], [v[:name], v[:price], v[:store]])
+    dbh[:grocery_list].insert([:item, :price, :store], [k, v[:price], v[:store]])
   end
 end
 
@@ -140,5 +132,4 @@ shop = Shopper::Safeway.new
 shop.get_results(safeway,safeway_prices)
 shop = Shopper::QFC.new
 shop.get_results(qfc,qfc_prices)
-#build_table
 update_database(db_cfg)
