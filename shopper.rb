@@ -73,7 +73,7 @@ module Shopper
         lastpage = page.has_link?('Next Page') ? page.first(:xpath,"//a[contains(@title,'Page')]")[:title][/ of (\d+)/,1].to_i : 0
         page.all(:xpath,"//div[contains(@id,'CircularListItem')]").each do |node|
           item_name = node.first('img')[:alt]
-          item_price = node.first('p').text.sub(/with card/i,"").sub(/lb/i,"per pound")
+          item_price = node.first('p').text.sub(/with card/i,"").sub(/lb\.?\s?/i,"per pound")
           pricelist["#{item_name}"] = item_price
           if item_name =~ /Breasts or Thighs/
             scan_price(storename, "Chicken Breast", m, item_price)
