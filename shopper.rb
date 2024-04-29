@@ -6,10 +6,16 @@ Name: shopper.rb
 Author: Chris Caruso
 
 Script to crawl supermarket web pages and comparison shop for my frequent purchases.
+
+*****
+*need to fix chicken breasts...why are they not showing up?
+
 =end
 
+require 'yaml'
 require 'capybara'
-require 'pry'
+require 'capybara/dsl'
+require 'sequel'
 
 =begin
 Capybara.register_driver :chrome do |app|
@@ -17,6 +23,7 @@ Capybara.register_driver :chrome do |app|
 end
 Capybara.javascript_driver = :chrome
 Capybara.default_driver = :chrome   #should this be current or default? Explore reasons.
+<<<<<<< HEAD
 =end
 Capybara.register_driver :selenium_firefox do |app|
   Capybara::Selenium::Driver.new(app, :browser => :firefox)
@@ -31,7 +38,12 @@ qfc_prices = Hash.new
 
 $prices = []
 $meaty_targets = ['Salmon','London Broil','Roast','Sardines','Chicken Breast']
+cfgfile='db.yml'
+abort "db.yml config file not found!" unless File.file?(cfgfile)
+db_cfg = YAML::load(File.open(cfgfile))
 
+$meaty_targets = ['Salmon','London Broil','Roast','Sardines','Chicken Breast','Chicken Thighs','Cod','Tilapia','Ground Beef','Top Round','Bottom Round','Ribeye','New York Strip','Pork Chops','Pork Tenderloin','Chicken Leg Quarters','Shrimp']
+$results_hash= Hash.new {|h,k| h[k] = {}}
 module Shopper
   
   class QFC
@@ -41,9 +53,10 @@ module Shopper
       visit store
       page.driver.browser.switch_to.frame(0)
       page.execute_script "wishabi.app.gotoGridView()"
+      #sleep 1
+      page.first(:button,"Meat & Seafood").click
       $meaty_targets.each do |m|
         page.all(:xpath,"//li[@class='item']").each do |node|
-          #clean these up!
           item_name = node.first(:xpath,"./div[@class='item-name']").text
           item_price = node.first(:xpath,"./div[@class='item-price']").text
           pricelist["#{item_name}"] = item_price
@@ -65,9 +78,14 @@ module Shopper
         lastpage = page.has_link?('Next Page') ? page.first(:xpath,"//a[contains(@title,'Page')]")[:title][/ of (\d+)/,1].to_i : 0
         page.all(:xpath,"//div[contains(@id,'CircularListItem')]").each do |node|
           item_name = node.first('img')[:alt]
-          item_price = node.first('p').text
+          item_price = node.first('p').text.sub(/with card/i,"").sub(/lb/i,"per pound")
           pricelist["#{item_name}"] = item_price
-          scan_price(storename, item_name, m, item_price)
+          if item_name =~ /Breasts or Thighs/
+            scan_price(storename, "Chicken Breast", m, item_price)
+            scan_price(storename, "Chicken Thighs", m, item_price)
+          else
+            scan_price(storename, item_name, m, item_price)
+          end
         end
         for i in 2..lastpage
           sleep 1
@@ -75,51 +93,48 @@ module Shopper
           page.all(:xpath,"//div[contains(@id,'CircularListItem')]").each do |node|
             #(continue assembling hash of prices here)
             item_name = node.first('img')[:alt]
-            item_price = node.first('p').text
+            item_price = node.first('p').text.sub(/with card/i,"")
             pricelist["#{item_name}"] = item_price
             scan_price(storename, item_name, m, item_price)
           end
         end
       end
-
     end
 
- 
   end
 
 end
 
 def scan_price(storename, item_name, target_item, item_price)
- if item_name =~ /#{target_item} ?/ #added \W to eliminate 'roasted' etc.
-   puts "#{storename}: #{item_name} for #{item_price}."
-   $prices << ["#{storename}","#{item_name}","#{item_price}"]
+  # If there is a per-pound price, ALWAYS supersede the '$ EA' price.
+  if item_name =~ /#{target_item} ?/
+    # set hash value if nil, otherwise set hash value if price is less?
+    $results_hash[target_item][:price] ||= item_price
+    $results_hash[target_item][:name] ||= item_name
+    $results_hash[target_item][:store] ||= storename
+    $results_hash[target_item][:price] < item_price
+    # vvv Can this be cleaned up? vvv
+    if item_price < $results_hash[target_item][:price] && item_price !~ /EA/ || (item_price < $results_hash[target_item][:price] =~ /EA/ && item_price =~ /EA/ && $results_hash[target_item][:price] =~ /EA/) || (item_price !~ /EA/ && $results_hash[target_item][:price] =~ /EA/)
+      $results_hash[target_item][:price] = item_price
+      $results_hash[target_item][:name] = item_name
+    end
  end
 end
 
-def build_table
-  file_loc = '/Users/carusocr/projects/todo/views/table.haml'
-  file = File.open(file_loc,'w')
-  file.write("%link{:href => 'style.css', :rel => 'stylesheet'}\n")
-  file.write("%table#shoplist\n")
-  file.write("  %tbody\n")
-  file.write("    %tr\n")
-  file.write("    %th Store\n")
-  file.write("    %th Item\n")
-  file.write("    %th Price\n")
-  $prices.each do |row|
-    store = row[0]
-    file.write("    %tr.#{store}\n")
-    row.each do |col|  
-      file.write("      %td= '#{col.sub('\'','`')}'\n")
-    end
+def update_database(db_cfg)
+  dbh = Sequel.connect(db_cfg)
+  #delete old data
+  dbh[:grocery_list].where('item != ?',"none of these").delete
+  $results_hash.each do |k,v|
+    next if v[:price] == ""
+    puts "Found #{k} for #{v[:price]} at #{v[:store]}."
+    #add some exception handling here
+    dbh[:grocery_list].insert([:item, :price, :store], [k, v[:price], v[:store]])
   end
-  file.write("%br\n%a{:href => '/present'}\n")
-  file.write("  %button\n")
-  file.write("    Home\n")
 end
 
-shop = Shopper::QFC.new
-shop.get_results(qfc,qfc_prices)
 shop = Shopper::Safeway.new
 shop.get_results(safeway,safeway_prices)
-build_table
+shop = Shopper::QFC.new
+shop.get_results(qfc,qfc_prices)
+update_database(db_cfg)
