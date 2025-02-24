@@ -17,22 +17,27 @@ require 'capybara'
 require 'capybara/dsl'
 require 'sequel'
 
+=begin
 Capybara.register_driver :chrome do |app|
   Capybara::Selenium::Driver.new(app, :browser => :chrome)
 end
-
 Capybara.javascript_driver = :chrome
 Capybara.default_driver = :chrome   #should this be current or default? Explore reasons.
-
-#added for pry testing
-#include Capybara::DSL
-
+<<<<<<< HEAD
+=end
+Capybara.register_driver :selenium_firefox do |app|
+  Capybara::Selenium::Driver.new(app, :browser => :firefox)
+end
+Capybara.javascript_driver = :selenium_firefox
+Capybara.default_driver = :selenium_firefox   #should this be current or default? Explore reasons.
 
 safeway = 'http://plan.safeway.com/Circular/Seattle-2201-E-Madison-St-/2E2374900/Weekly/2'
 safeway_prices = Hash.new
 qfc = 'https://www.qfc.com/weeklyad?StoreCode=00847&DivisionId=705'
 qfc_prices = Hash.new
 
+$prices = []
+$meaty_targets = ['Salmon','London Broil','Roast','Sardines','Chicken Breast']
 cfgfile='db.yml'
 abort "db.yml config file not found!" unless File.file?(cfgfile)
 db_cfg = YAML::load(File.open(cfgfile))
