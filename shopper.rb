@@ -38,9 +38,9 @@ qfc_prices = Hash.new
 
 $prices = []
 $meaty_targets = ['Salmon','London Broil','Roast','Sardines','Chicken Breast']
-cfgfile='db.yml'
-abort "db.yml config file not found!" unless File.file?(cfgfile)
-db_cfg = YAML::load(File.open(cfgfile))
+#cfgfile='db.yml'
+#abort "db.yml config file not found!" unless File.file?(cfgfile)
+#db_cfg = YAML::load(File.open(cfgfile))
 
 $meaty_targets = ['Salmon','London Broil','Roast','Sardines','Chicken Breast','Chicken Thighs','Cod','Tilapia','Ground Beef','Top Round','Bottom Round','Ribeye','New York Strip','Pork Chops','Pork Tenderloin','Chicken Leg Quarters','Shrimp']
 $results_hash= Hash.new {|h,k| h[k] = {}}
@@ -137,4 +137,5 @@ shop = Shopper::Safeway.new
 shop.get_results(safeway,safeway_prices)
 shop = Shopper::QFC.new
 shop.get_results(qfc,qfc_prices)
+exit
 update_database(db_cfg)
