@@ -26,3 +26,5 @@ with open("souptest.html", "wb") as file:
     file.write(html)
 
 time.sleep(10)
+
+soup.find_all(attrs={"aria-label": re.compile("Beef")})
