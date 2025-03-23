@@ -1,6 +1,11 @@
+'''
+
+
+'''
 import undetected_chromedriver as uc
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup as bs
 import random,time,os,sys
+import regex as re
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 
@@ -19,12 +24,18 @@ driver.get('https://www.safeway.com/set-store.html?storeId=1594&target=weeklyad'
 time.sleep(10)
 elem = driver.find_element("xpath","//iframe[@class='flippiframe mainframe']")
 driver.switch_to.frame(elem)
+time.sleep(3) # see if this is necessary
 html_source_code = driver.execute_script("return document.body.innerHTML;")
-html_soup: BeautifulSoup = BeautifulSoup(html_source_code, 'html.parser')
+html_soup: bs = bs(html_source_code, 'html.parser')
 html = html_soup.prettify("utf-8")
 with open("souptest.html", "wb") as file:
     file.write(html)
 
-time.sleep(10)
+# could also just parse instead of writing and then reading, but want to 
+# review html manually too
+with open('souptest.html') as fp:
+    soup = bs(fp, features="lxml")
 
-soup.find_all(attrs={"aria-label": re.compile("Beef")})
+proteins = soup.find_all("button", attrs={"aria-label": re.compile("Beef|Chicken|Pork|Tofu")})
+for protein in proteins:
+    print(protein['aria-label'])
