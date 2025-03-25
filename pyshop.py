@@ -34,4 +34,7 @@ with open('souptest.html') as fp:
 
 proteins = soup.find_all("button", attrs={"aria-label": re.compile("Beef|Chicken|Pork|Tofu")})
 for protein in proteins:
-    print(protein['aria-label'])
+    found_meat = (protein['aria-label'])
+    res = re.search('(?<desc>.+), ,(?<price>.+\d(\.\d+)?.+(digital_coupon)?).+?\.', found_meat)
+    print(res.group('desc'))
+    print(res.group('price'))
