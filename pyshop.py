@@ -1,7 +1,3 @@
-'''
-
-
-'''
 import undetected_chromedriver as uc
 from bs4 import BeautifulSoup as bs
 import random,time,os,sys
