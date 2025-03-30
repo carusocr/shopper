@@ -1,3 +1,22 @@
+"""
+
+Automated shopper to find cheapest prices of expensive staples.
+
+Notes
+
+To list all attributes of a particular element:
+
+    elem = driver.find_element("xpath","//area")
+
+    driver.execute_script('var items = {}; for (index = 0; index < arguments[0].attributes.length; ++index) { items[arguments[0].attributes[index].name] = arguments[0].attributes[index].value }; return items;', elem)
+
+Clicking on a single item in FM flyer (example has href value of '#link3', need to 
+find each one:
+
+    driver.find_element("xpath","//area[@href='#link3']").click()
+    driver.find_element("xpath","//a[@aria-label='Close modal']").click()
+
+"""
 import undetected_chromedriver as uc
 from bs4 import BeautifulSoup as bs
 import random,time,os,sys
@@ -9,6 +28,7 @@ chrome_options = uc.ChromeOptions()
 chrome_options.add_argument("--disable-extensions")
 chrome_options.add_argument("--disable-popup-blocking")
 chrome_options.add_argument("--ignore-certificate-errors")
+
 
 driver = uc.Chrome(options=chrome_options)
 
