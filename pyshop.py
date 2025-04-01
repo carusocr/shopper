@@ -14,7 +14,19 @@ Clicking on a single item in FM flyer (example has href value of '#link3', need 
 find each one:
 
     driver.find_element("xpath","//area[@href='#link3']").click()
+    
+    desc = driver.find_element("xpath","//div[@class='modal__heading']")
+    price = driver.find_element("xpath","//div[@class='offer_price']")
+    # then close modal window
     driver.find_element("xpath","//a[@aria-label='Close modal']").click()
+
+So the tedious process for getting Fred Meyer items is going to be something like:
+
+    1. Get list of elements with description matching target items.
+    2. For each element, click on the link to open modal.
+    3. Scrape modal desc + price, add to dictionary, close modal.
+    4. Generate pretty list of items + prices.
+
 
 """
 import undetected_chromedriver as uc
