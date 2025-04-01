@@ -28,6 +28,9 @@ So the tedious process for getting Fred Meyer items is going to be something lik
     4. Generate pretty list of items + prices.
 
 
+    TODO: anon FM window raises popup, but only sometimes? Check for and close if so.
+
+
 """
 import undetected_chromedriver as uc
 from bs4 import BeautifulSoup as bs
