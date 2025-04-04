@@ -39,7 +39,7 @@ So the tedious process for getting Fred Meyer items is going to be something lik
 
     TODO: anon FM window raises popup, but only sometimes? Check for and close if so.
     # use elementS instead of element to return list, if list isn't empty click [0].
-    driver.find_elements("xpath","//button[text()='Dismiss']").click()
+    driver.find_elements("xpath","//button[text()='Dismiss']")[0].click()
 
 
 """
