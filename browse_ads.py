@@ -17,14 +17,19 @@ find each one:
     
 
 So the tedious process for getting Fred Meyer items is going to be something like:
+    driver.get("https://www.fredmeyer.com/weeklyad")
 
     1. Get list of elements with description matching target items.
 
     soup.find_all("area", attrs={"aria-label": re.compile("Beef|Chicken|Pork|Tofu")})
 
+    anon FM window raises popup, but only sometimes? Check for and close if so.
+    # use elementS instead of element to return list, if list isn't empty click [0].
+    driver.find_elements("xpath","//button[text()='Dismiss']")[0].click()
+
     2. For each element, click on the link to open modal.
 
-    hr = p[0].xpath("./href")
+    hr = p[0]['href']
     xpath_expr = f"//area[@href='{hr}']"
     driver.find_element("xpath",xpath_expr).click()
 
@@ -50,6 +55,8 @@ So the tedious process for getting Fred Meyer items is going to be something lik
             print(store + ":" + meat)
 
 
+    TODO: close browser windows before reinitializing a new one
+
 
 """
 import undetected_chromedriver as uc
@@ -60,7 +67,6 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 
 def init_chrome():
-
     chrome_options = uc.ChromeOptions()
     chrome_options.add_argument("--disable-extensions")
     chrome_options.add_argument("--disable-popup-blocking")
@@ -70,9 +76,35 @@ def init_chrome():
 
 meats = {'SAFEWAY': [], 'FRED MEYER': []}
 
+def crawl_fm(driver, meats):
+    driver.get('https://www.fredmeyer.com/weeklyad')
+    time.sleep(3)
+    #driver.find_elements("xpath","//button[text()='Dismiss']")[0].click()
+    time.sleep(3)
+    html_source_code = driver.execute_script("return document.body.innerHTML;")
+    soup: bs = bs(html_source_code, 'html.parser')
+    proteins = soup.find_all("area", attrs={"aria-label": re.compile("Beef|Chicken|Pork|Tofu")})
+    for p in proteins:
+        hr = p['href']
+        print(hr)
+        xpath_expr = f"//area[@href='{hr}']"
+        driver.find_element("xpath", xpath_expr).click()
+        time.sleep(1)
+        desc = driver.find_element("xpath", "//div[@class='modal__heading']").text
+        price = driver.find_element("xpath", "//div[@class='offer_price']").text
+        meats['FRED MEYER'].append(desc + ":  " + price)
+        time.sleep(1)
+        #driver.find_elements("xpath","//button[text()='Dismiss']")[0].click()
+        driver.find_elements("xpath","//a[@aria-label='Close modal']")[0].click()
+        time.sleep(2)
+    return meats
+
+
+
 def crawl_safeway(driver, meats):
 
     driver.get('https://www.safeway.com/set-store.html?storeId=1594&target=weeklyad')
+    # change this by making it a wait_for
     time.sleep(10)
     elem = driver.find_element("xpath","//iframe[@class='flippiframe mainframe']")
     driver.switch_to.frame(elem)
