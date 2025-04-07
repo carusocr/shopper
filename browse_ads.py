@@ -33,6 +33,21 @@ So the tedious process for getting Fred Meyer items is going to be something lik
     xpath_expr = f"//area[@href='{hr}']"
     driver.find_element("xpath",xpath_expr).click()
 
+    * gotchas: need to move to a specific element before clicking:
+
+    elem = driver.find_element("xpath","//area[@href='#link10']")
+
+    # vvv didn't work vvv
+    driver.execute_script("arguments[0].scrollIntoView();", elem)
+
+    # this seems to work
+    from selenium.webdriver.common.action_chains import ActionChains
+    a = ActionChains(driver)
+    a.move_to_element(elem).perform()
+
+
+    THEN click. Or just switch to using search.
+
     3. Scrape modal desc + price, add to dictionary, close modal.
 
     desc = driver.find_element("xpath","//div[@class='modal__heading']")
@@ -65,6 +80,7 @@ import random,time,os,sys
 import regex as re
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.action_chains import ActionChains
 
 def init_chrome():
     chrome_options = uc.ChromeOptions()
@@ -77,18 +93,27 @@ def init_chrome():
 meats = {'SAFEWAY': [], 'FRED MEYER': []}
 
 def crawl_fm(driver, meats):
+    '''using search instead of parsing full page:
+    s = driver.find_element("xpath","//input[@id='textInput']")
+    s.sendKeys('Beef')
+    s.send_keys(Keys.ENTER)
+    ...then get html again, and click each hit to get item + price modal
+    '''
+
     driver.get('https://www.fredmeyer.com/weeklyad')
     time.sleep(3)
+    a = ActionChains(driver)
     #driver.find_elements("xpath","//button[text()='Dismiss']")[0].click()
     time.sleep(3)
     html_source_code = driver.execute_script("return document.body.innerHTML;")
     soup: bs = bs(html_source_code, 'html.parser')
     proteins = soup.find_all("area", attrs={"aria-label": re.compile("Beef|Chicken|Pork|Tofu")})
     for p in proteins:
-        hr = p['href']
-        print(hr)
-        xpath_expr = f"//area[@href='{hr}']"
-        driver.find_element("xpath", xpath_expr).click()
+        coords = p['coords']
+        xpath_expr = f"//area[@coords='{coords}']"
+        elem = driver.find_element("xpath", xpath_expr)
+        a.move_to_element(elem).perform()
+        elem.click
         time.sleep(1)
         desc = driver.find_element("xpath", "//div[@class='modal__heading']").text
         price = driver.find_element("xpath", "//div[@class='offer_price']").text
