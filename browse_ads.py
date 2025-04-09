@@ -65,8 +65,8 @@ So the tedious process for getting Fred Meyer items is going to be something lik
     a['sw'].append(res.group('desc') + res.group('price'))
     (do something similar with fm)
     then iterate over list
-    for store, meats in a.items():
-        for meat in meats:
+    for store, hits in a.items():
+        for meat in hits:
             print(store + ":" + meat)
 
 
@@ -90,16 +90,45 @@ def init_chrome():
     driver = uc.Chrome(options=chrome_options)
     return driver
 
-meats = {'SAFEWAY': [], 'FRED MEYER': []}
+MEAT = ['Beef','Chicken','Pork','Tofu','Shrimp']
+hits = {'SAFEWAY': [], 'FRED MEYER': []}
 
-def crawl_fm(driver, meats):
+
+def crawl_fm_rmx(driver, hits):
     '''using search instead of parsing full page:
     s = driver.find_element("xpath","//input[@id='textInput']")
-    s.sendKeys('Beef')
+    s.send_keys('Beef')
     s.send_keys(Keys.ENTER)
-    ...then get html again, and click each hit to get item + price modal
+    p = driver.find_element("xpath","//div[@class='offer_card']/div[@class='footer_btn']")
+    - then get desc + price, close modal, continue
+
+    p = driver.find_elements("xpath","//div[@class='offer_card']/div[@class='footer_btn']")
+
     '''
 
+    driver.get('https://www.fredmeyer.com/weeklyad')
+    time.sleep(3)
+    #driver.find_elements("xpath","//button[text()='Dismiss']")[0].click()
+    for meat in MEAT:
+        # we want the second text box on the page, gotta be a neater way of doing this
+        # also, initial search needs first text box. Ugh.
+        searchbox = driver.find_elements("xpath","//input[@id='textInput' or @id='search-textInput']")[1]
+        searchbox.clear()
+        searchbox.send_keys(meat)
+        searchbox.send_keys(Keys.ENTER)
+        # need another loop here to iterate over elements
+        prots = driver.find_elements("xpath","//div[@class='offer_card']/div[@class='footer_btn']")
+        for p in prots:
+            p.click()
+            time.sleep(1)
+            desc = driver.find_element("xpath", "//div[@class='modal__heading']").text
+            price = driver.find_element("xpath", "//div[@class='offer_price']").text
+            hits['FRED MEYER'].append(desc + ":  " + price)
+            driver.find_elements("xpath","//a[@aria-label='Close modal']")[0].click()
+
+
+
+def crawl_fm(driver, hits):
     driver.get('https://www.fredmeyer.com/weeklyad')
     time.sleep(3)
     a = ActionChains(driver)
@@ -117,16 +146,16 @@ def crawl_fm(driver, meats):
         time.sleep(1)
         desc = driver.find_element("xpath", "//div[@class='modal__heading']").text
         price = driver.find_element("xpath", "//div[@class='offer_price']").text
-        meats['FRED MEYER'].append(desc + ":  " + price)
+        hits['FRED MEYER'].append(desc + ":  " + price)
         time.sleep(1)
         #driver.find_elements("xpath","//button[text()='Dismiss']")[0].click()
         driver.find_elements("xpath","//a[@aria-label='Close modal']")[0].click()
         time.sleep(2)
-    return meats
+    return hits
 
 
 
-def crawl_safeway(driver, meats):
+def crawl_safeway(driver, hits):
 
     driver.get('https://www.safeway.com/set-store.html?storeId=1594&target=weeklyad')
     # change this by making it a wait_for
@@ -140,13 +169,13 @@ def crawl_safeway(driver, meats):
     for protein in proteins:
         found_meat = (protein['aria-label'])
         res = re.search('(?<desc>.+), ,(?<price>.+\d(\.\d+)?.+(digital_coupon)?).+?\.', found_meat)
-        meats['SAFEWAY'].append(res.group('desc') + ":  " + res.group('price'))
+        hits['SAFEWAY'].append(res.group('desc') + ":  " + res.group('price'))
         #print(res.group('desc'))
         #print(res.group('price'))
-    return meats
+    return hits
 
 driver = init_chrome()
-meats = crawl_safeway(driver, meats)
-for k, v in meats.items():
+hits = crawl_safeway(driver, hits)
+for k, v in hits.items():
     for meat in v:
         print(k, meat)
