@@ -24,7 +24,6 @@ def init_chrome():
 MEAT = ['Beef','Chicken','Pork','Tofu','Shrimp']
 hits = {'SAFEWAY': [], 'FRED MEYER': []}
 
-
 def crawl_fm(driver, hits):
     driver.get('https://www.fredmeyer.com/weeklyad')
     time.sleep(3)
@@ -67,13 +66,11 @@ def crawl_safeway(driver, hits):
         found_meat = (protein['aria-label'])
         res = re.search('(?<desc>.+), ,(?<price>.+\d(\.\d+)?.+(digital_coupon)?).+?\.', found_meat)
         hits['SAFEWAY'].append(res.group('desc') + ":  " + res.group('price'))
-        #print(res.group('desc'))
-        #print(res.group('price'))
     return hits
 
 driver = init_chrome()
-#hits = crawl_safeway(driver, hits)
 hits = crawl_fm(driver, hits)
+hits = crawl_safeway(driver, hits)
 for k, v in hits.items():
     for meat in v:
         print(k, meat)
