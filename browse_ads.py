@@ -42,7 +42,9 @@ def crawl_fm(driver, hits):
             p.click()
             time.sleep(1)
             desc = driver.find_element("xpath", "//div[@class='modal__heading']").text
+            desc = ' '.join(desc.splitlines())
             price = driver.find_element("xpath", "//div[@class='offer_price']").text
+            price = ' '.join(price.splitlines())
             hits['FRED MEYER'].append(desc + ":  " + price)
             driver.find_elements("xpath","//a[@aria-label='Close modal']")[0].click()
         #instead of searching from results page, go back and click mainpage search again
@@ -71,7 +73,7 @@ def crawl_safeway(driver, hits):
 
 driver = init_chrome()
 #hits = crawl_safeway(driver, hits)
-hits = crawl_fm_rmx(driver, hits)
+hits = crawl_fm(driver, hits)
 for k, v in hits.items():
     for meat in v:
         print(k, meat)
