@@ -78,9 +78,19 @@ with open("souptest.html", "wb") as file:
 with open('souptest.html') as fp:
     soup = bs(fp, features="lxml")
 
-proteins = soup.find_all("button", attrs={"aria-label": re.compile("Beef|Chicken|Pork|Tofu")})
+proteins = soup.find_all("button", attrs={"aria-label": re.compile("Beef|Chicken|Pork|Tofu", re.IGNORECASE)})
 for protein in proteins:
     found_meat = (protein['aria-label'])
     res = re.search('(?<desc>.+), ,(?<price>.+\d(\.\d+)?.+(digital_coupon)?).+?\.', found_meat)
+    if res:
+        print(res.group('desc'))
+        print(res.group('price'))
+    res = re.search('(?<desc>.+), ,(?<price>.+\d(\.\d+)?.+(digital_coupon)?).+?\.', found_meat)
+    if res:
+        print(res.group('desc'))
+        print(res.group('price'))
+    else:
+        print(f"No match found for: {found_meat}")
+    res = re.search(r'(?P<desc>.+), ,(?P<price>\$\d+(\.\d+)?(?:\s+digital_coupon)?)', found_meat)
     print(res.group('desc'))
     print(res.group('price'))
